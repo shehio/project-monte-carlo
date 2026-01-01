@@ -1,0 +1,11 @@
+baseURL = "https://projectmontecarlo.com/"
+languageCode = "en-us"
+title = "Project Monte Carlo"
+
+[params]
+  description = "Interactive Monte Carlo simulations"
+
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true
