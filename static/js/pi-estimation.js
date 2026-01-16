@@ -44,7 +44,7 @@
       if (hit) inside++;
 
       ctx.fillStyle = hit ? 'rgba(0,212,170,0.5)' : 'rgba(80,80,80,0.35)';
-      ctx.fillRect(x * W, y * H, 1.5, 1.5);
+      ctx.fillRect(x * W, y * H, 2, 2);
     }
     update();
   }
