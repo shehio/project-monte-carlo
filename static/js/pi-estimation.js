@@ -43,7 +43,7 @@
       const hit = x * x + y * y <= 1;
       if (hit) inside++;
 
-      ctx.fillStyle = hit ? 'rgba(0,212,170,0.5)' : 'rgba(80,80,80,0.35)';
+      ctx.fillStyle = hit ? 'rgba(0,212,170,0.5)' : 'rgba(80,80,80,0.3)';
       ctx.fillRect(x * W, y * H, 2, 2);
     }
     update();
