@@ -49,7 +49,7 @@
 
     if (data.length < 2) return;
 
-    const bins = 50;
+    const bins = 60;
     const [lo, hi] = range;
     const binW = (hi - lo) / bins;
     const counts = new Array(bins).fill(0);
