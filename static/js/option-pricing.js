@@ -102,7 +102,7 @@
     for (const path of paths) {
       const finalS = path[path.length - 1];
       const itm = finalS > p.K;
-      pathsCtx.strokeStyle = itm ? 'rgba(0,212,170,0.12)' : 'rgba(100,100,100,0.1)';
+      pathsCtx.strokeStyle = itm ? 'rgba(0,212,170,0.12)' : 'rgba(100,100,100,0.08)';
       pathsCtx.beginPath();
       for (let i = 0; i < path.length; i++) {
         const x = (i / (path.length - 1)) * W;
