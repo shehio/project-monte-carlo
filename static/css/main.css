@@ -305,7 +305,7 @@ label {
 .playing-card.red { color: var(--red); }
 
 .playing-card.face-down {
-  background: linear-gradient(135deg, #1a1a2e 25%, #16213e 50%, #1a1a2e 75%);
+  background: linear-gradient(145deg, #1a1a2e 25%, #16213e 50%, #1a1a2e 75%);
   border: 1px solid var(--border);
 }
 
@@ -371,4 +371,3 @@ label {
   .grid { padding: 0 1rem 3rem; }
   .viz-page { padding: 1.5rem; }
 }
-/* color contrast fix */
