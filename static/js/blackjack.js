@@ -292,7 +292,7 @@
       }
     }
 
-    setTimeout(dealerStep, 400);
+    setTimeout(dealerStep, 450);
   }
 
   function resolveHands() {
