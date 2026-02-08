@@ -280,7 +280,7 @@ label {
 
 .hand {
   display: flex;
-  gap: 0.6rem;
+  gap: 0.5rem;
   justify-content: center;
   min-height: 112px;
   align-items: center;
@@ -341,7 +341,7 @@ label {
 
 #bet-controls, #action-controls {
   display: flex;
-  gap: 0.6rem;
+  gap: 0.5rem;
   justify-content: center;
 }
 
@@ -371,4 +371,3 @@ label {
   .grid { padding: 0 1rem 3rem; }
   .viz-page { padding: 1.5rem; }
 }
-/* z-index cleanup */
