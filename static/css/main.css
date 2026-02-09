@@ -282,7 +282,7 @@ label {
   display: flex;
   gap: 0.5rem;
   justify-content: center;
-  min-height: 112px;
+  min-height: 110px;
   align-items: center;
 }
 
@@ -371,4 +371,3 @@ label {
   .grid { padding: 0 1rem 3rem; }
   .viz-page { padding: 1.5rem; }
 }
-/* line-height fix */
