@@ -49,7 +49,7 @@ nav {
   text-decoration: none;
   font-size: 0.8rem;
   letter-spacing: 1px;
-  transition: color 0.2s;
+  transition: color 0.15s;
 }
 
 .nav-links a:hover { color: var(--accent); }
@@ -371,4 +371,3 @@ label {
   .grid { padding: 0 1rem 3rem; }
   .viz-page { padding: 1.5rem; }
 }
-/* gradient adjustment */
