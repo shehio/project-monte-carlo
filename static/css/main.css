@@ -366,9 +366,8 @@ label {
   .nav-links { gap: 1rem; }
   .stats { gap: 1.5rem; }
   .game-info { gap: 1.5rem; }
-  .playing-card { width: 56px; height: 78px; font-size: 0.7rem; }
+  .playing-card { width: 54px; height: 76px; font-size: 0.7rem; }
   .playing-card .center-suit { font-size: 1.1rem; }
   .grid { padding: 0 1rem 3rem; }
   .viz-page { padding: 1.5rem; }
 }
-/* consolidate selectors */
