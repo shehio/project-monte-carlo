@@ -3,7 +3,7 @@ languageCode = "en-us"
 title = "Project Monte Carlo"
 
 [params]
-  description = "Interactive Monte Carlo simulations"
+  description = "Interactive Monte Carlo simulations and stochastic experiments"
 
 [markup]
   [markup.goldmark]
