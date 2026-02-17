@@ -12,6 +12,7 @@
     error: document.getElementById('pi-error'),
     speed: document.getElementById('pi-speed'),
     start: document.getElementById('pi-start'),
+    indicator: document.getElementById('pi-indicator'),
   };
 
   function init() {
@@ -67,7 +68,13 @@
     running = !running;
     els.start.textContent = running ? 'pause' : 'start';
     els.start.classList.toggle('active', running);
-    if (running) animate();
+    if (running) {
+      if (els.indicator) {
+        els.indicator.className = 'data-indicator live';
+        els.indicator.innerHTML = '<span class="dot"></span>live simulation';
+      }
+      animate();
+    }
   });
 
   document.getElementById('pi-reset').addEventListener('click', () => {
@@ -84,4 +91,21 @@
   });
 
   init();
+
+  // load pre-computed data on init
+  fetch('/data/pi_estimation.json')
+    .then(r => r.json())
+    .then(data => {
+      if (data.convergence && data.convergence.length > 0) {
+        const last = data.convergence[data.convergence.length - 1];
+        els.value.textContent = last.pi.toFixed(6);
+        els.count.textContent = data.total.toLocaleString();
+        els.error.textContent = data.error.toFixed(6);
+        if (els.indicator) {
+          els.indicator.className = 'data-indicator precomputed';
+          els.indicator.innerHTML = '<span class="dot"></span>pre-computed · ' + data.total.toLocaleString() + ' points';
+        }
+      }
+    })
+    .catch(() => {});
 })();

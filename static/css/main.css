@@ -136,6 +136,56 @@ nav {
   margin-top: 0.25rem;
 }
 
+/* ── explanation ── */
+
+.explanation {
+  color: var(--dim);
+  font-size: 0.75rem;
+  line-height: 1.7;
+  margin-bottom: 2rem;
+  max-width: 640px;
+}
+
+.explanation p { margin-bottom: 0.5rem; }
+
+.explanation code {
+  color: var(--text);
+  font-size: 0.72rem;
+  background: var(--surface);
+  padding: 0.15rem 0.35rem;
+  border-radius: 2px;
+}
+
+.explanation .formula {
+  color: var(--accent);
+  font-size: 0.78rem;
+  margin: 0.5rem 0;
+  padding-left: 0.75rem;
+  border-left: 1px solid var(--border);
+}
+
+/* ── data indicator ── */
+
+.data-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.65rem;
+  color: var(--dim);
+  letter-spacing: 0.5px;
+  margin-bottom: 1rem;
+}
+
+.data-indicator .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--dim);
+}
+
+.data-indicator.live .dot { background: var(--accent); }
+.data-indicator.precomputed .dot { background: #f0c040; }
+
 /* ── canvas ── */
 
 canvas {
@@ -371,4 +421,3 @@ label {
   .grid { padding: 0 1rem 3rem; }
   .viz-page { padding: 1.5rem; }
 }
-/* normalize units to rem */

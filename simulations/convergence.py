@@ -20,10 +20,50 @@ def gauss():
     return u * math.sqrt(-2 * math.log(s) / s)
 
 
+def gamma_random(shape):
+    """Marsaglia and Tsang's method for gamma distribution."""
+    if shape < 1:
+        return gamma_random(shape + 1) * random.random() ** (1 / shape)
+    d = shape - 1 / 3
+    c = 1 / math.sqrt(9 * d)
+    while True:
+        x = gauss()
+        v = 1 + c * x
+        while v <= 0:
+            x = gauss()
+            v = 1 + c * x
+        v = v ** 3
+        u = random.random()
+        if u < 1 - 0.0331 * x**4:
+            return d * v
+        if math.log(u) < 0.5 * x * x + d * (1 - v + math.log(v)):
+            return d * v
+
+
+def beta_random(a, b):
+    x = gamma_random(a)
+    y = gamma_random(b)
+    return x / (x + y)
+
+
+def poisson_random(lam):
+    L = math.exp(-lam)
+    k, p = 0, 1.0
+    while True:
+        k += 1
+        p *= random.random()
+        if p <= L:
+            return k - 1
+
+
 distributions = {
     "exponential": lambda: -math.log(1 - random.random()),
     "uniform": lambda: random.random(),
     "bimodal": lambda: gauss() - 2 if random.random() < 0.5 else gauss() + 2,
+    "chi-squared": lambda: gamma_random(1) + gamma_random(1),
+    "log-normal": lambda: math.exp(gauss()),
+    "beta": lambda: beta_random(2, 5),
+    "poisson": lambda: poisson_random(4),
 }
 
 
@@ -35,7 +75,7 @@ def sample_means(dist_fn, sample_size: int, num_means: int) -> list[float]:
 
 
 def run(num_means: int = 10_000) -> dict:
-    sample_sizes = [1, 2, 5, 10, 30, 50, 100]
+    sample_sizes = [1, 2, 5, 10, 30, 50, 100, 200, 500]
     results = {}
 
     for name, fn in distributions.items():

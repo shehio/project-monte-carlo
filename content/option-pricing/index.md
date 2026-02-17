@@ -4,6 +4,14 @@ subtitle: "monte carlo vs black-scholes"
 js: "option-pricing.js"
 ---
 
+<div class="explanation">
+  <p>Stock prices are modeled as geometric Brownian motion: <code>dS = μS dt + σS dW</code>. For a European call option, the payoff at expiry is <code>max(S_T − K, 0)</code>.</p>
+  <p class="formula">MC price = e^(−rT) × average of simulated payoffs</p>
+  <p>Black-Scholes gives the exact closed-form price for European options. Monte Carlo converges to it — but MC generalizes to exotic options where no closed form exists.</p>
+</div>
+
+<div id="option-indicator" class="data-indicator live"><span class="dot"></span>live simulation</div>
+
 <div class="canvas-row">
   <div>
     <h3>simulated paths</h3>

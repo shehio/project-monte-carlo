@@ -18,6 +18,7 @@
     bsPrice: document.getElementById('bs-price'),
     pathCount: document.getElementById('path-count'),
     run: document.getElementById('price-run'),
+    indicator: document.getElementById('option-indicator'),
   };
 
   function gaussRandom() {
@@ -225,7 +226,13 @@
     running = !running;
     els.run.textContent = running ? 'pause' : 'simulate';
     els.run.classList.toggle('active', running);
-    if (running) animate();
+    if (running) {
+      if (els.indicator) {
+        els.indicator.className = 'data-indicator live';
+        els.indicator.innerHTML = '<span class="dot"></span>live simulation';
+      }
+      animate();
+    }
   });
 
   document.getElementById('price-reset').addEventListener('click', reset);
@@ -233,4 +240,22 @@
   // show BS price immediately
   const p = getParams();
   els.bsPrice.textContent = '$' + blackScholes(p.S0, p.K, p.T, p.r, p.sigma).toFixed(2);
+
+  // load pre-computed data on init
+  fetch('/data/option_pricing.json')
+    .then(r => r.json())
+    .then(data => {
+      if (data.sample_paths && data.terminal_values) {
+        paths = data.sample_paths;
+        terminals = data.terminal_values;
+        drawPaths();
+        drawDist();
+        updatePrices();
+        if (els.indicator) {
+          els.indicator.className = 'data-indicator precomputed';
+          els.indicator.innerHTML = '<span class="dot"></span>pre-computed · ' + data.num_paths.toLocaleString() + ' paths';
+        }
+      }
+    })
+    .catch(() => {});
 })();
