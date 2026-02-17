@@ -4,6 +4,12 @@ subtitle: "6-deck shoe · dealer stands on 17"
 js: "blackjack.js"
 ---
 
+<div class="explanation">
+  <p>The house edge in blackjack is ~0.5% with basic strategy. Card counting tilts the odds by tracking the ratio of high to low cards remaining in the shoe.</p>
+  <p class="formula">Hi-Lo: +1 for 2–6 · 0 for 7–9 · −1 for 10,J,Q,K,A</p>
+  <p>A positive running count means more high cards remain, favoring the player. True count = running count / decks remaining — bet more when it's high.</p>
+</div>
+
 <div class="table">
   <div class="dealer-area">
     <h3>dealer</h3>
