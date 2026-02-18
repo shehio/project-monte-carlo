@@ -3,30 +3,63 @@
   <h1>Project Monte Carlo</h1>
   <p class="tagline">stochastic simulations · interactive visualizations</p>
 </section>
-<section class="grid">
-  <a href="/pi-estimation/" class="card">
-    <h3>π estimation</h3>
-    <p>random sampling in the unit square to approximate pi</p>
-  </a>
-  <a href="/convergence/" class="card">
-    <h3>convergence</h3>
-    <p>central limit theorem — watch distributions converge to normal</p>
-  </a>
-  <a href="/option-pricing/" class="card">
-    <h3>option pricing</h3>
-    <p>monte carlo vs black-scholes for european call options</p>
-  </a>
-  <a href="/blackjack/" class="card">
-    <h3>blackjack</h3>
-    <p>6-deck shoe · hi-lo counting · dealer stands on 17</p>
-  </a>
-  <a href="/integration/" class="card">
-    <h3>integration</h3>
-    <p>monte carlo area estimation under arbitrary curves</p>
-  </a>
-  <a href="/birthday-problem/" class="card">
-    <h3>birthday problem</h3>
-    <p>simulating the birthday paradox — shared birthdays vs room size</p>
-  </a>
+
+<section class="intro">
+  <p>Monte Carlo methods use random sampling to solve problems that are deterministic in principle. Throw enough randomness at a problem and patterns emerge — integrals converge, option prices stabilize, and π reveals itself in the noise. Every simulation here runs live in your browser.</p>
+</section>
+
+<section class="category">
+  <div class="category-header">
+    <h2>finance</h2>
+    <p>pricing, risk, and stochastic models</p>
+  </div>
+  <div class="grid">
+    <a href="/option-pricing/" class="card">
+      <h3>option pricing</h3>
+      <p>monte carlo vs black-scholes for european call options</p>
+    </a>
+    <a href="/exotic-options/" class="card">
+      <h3>exotic options</h3>
+      <p>asian, barrier, and lookback — where closed forms fail</p>
+    </a>
+  </div>
+</section>
+
+<section class="category">
+  <div class="category-header">
+    <h2>games</h2>
+    <p>strategy, probability, and counting</p>
+  </div>
+  <div class="grid">
+    <a href="/blackjack/" class="card">
+      <h3>blackjack</h3>
+      <p>6-deck shoe · hi-lo counting · dealer stands on 17</p>
+    </a>
+  </div>
+</section>
+
+<section class="category">
+  <div class="category-header">
+    <h2>math</h2>
+    <p>convergence, estimation, and probability</p>
+  </div>
+  <div class="grid">
+    <a href="/pi-estimation/" class="card">
+      <h3>π estimation</h3>
+      <p>random sampling in the unit square to approximate pi</p>
+    </a>
+    <a href="/convergence/" class="card">
+      <h3>convergence</h3>
+      <p>central limit theorem — watch distributions converge to normal</p>
+    </a>
+    <a href="/integration/" class="card">
+      <h3>integration</h3>
+      <p>monte carlo area estimation under arbitrary curves</p>
+    </a>
+    <a href="/birthday-problem/" class="card">
+      <h3>birthday problem</h3>
+      <p>simulating the birthday paradox — shared birthdays vs room size</p>
+    </a>
+  </div>
 </section>
 {{ end }}

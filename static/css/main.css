@@ -40,9 +40,15 @@ nav {
   font-weight: 700;
   font-size: 1rem;
   letter-spacing: 3px;
+  flex-shrink: 0;
 }
 
-.nav-links { display: flex; gap: 1.5rem; }
+.nav-links {
+  display: flex;
+  gap: 1.5rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
 
 .nav-links a {
   color: var(--dim);
@@ -50,6 +56,7 @@ nav {
   font-size: 0.8rem;
   letter-spacing: 1px;
   transition: color 0.15s;
+  white-space: nowrap;
 }
 
 .nav-links a:hover { color: var(--accent); }
@@ -58,7 +65,7 @@ nav {
 
 .hero {
   text-align: center;
-  padding: 8rem 2rem 4rem;
+  padding: 6rem 2rem 2rem;
 }
 
 .hero h1 {
@@ -75,15 +82,57 @@ nav {
   margin-top: 0.75rem;
 }
 
+/* ── intro ── */
+
+.intro {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 1.5rem 2rem 3rem;
+  text-align: center;
+}
+
+.intro p {
+  color: var(--dim);
+  font-size: 0.78rem;
+  line-height: 1.8;
+}
+
+/* ── category ── */
+
+.category {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 2rem 3rem;
+}
+
+.category-header {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.category-header h2 {
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 2px;
+  color: var(--accent);
+  text-transform: lowercase;
+}
+
+.category-header p {
+  font-size: 0.7rem;
+  color: var(--dim);
+}
+
 /* ── grid ── */
 
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 1px;
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 0 2rem 4rem;
 }
 
 .card {
@@ -411,14 +460,22 @@ label {
 @media (max-width: 640px) {
   .canvas-row { grid-template-columns: 1fr; }
   .hero h1 { font-size: 1.4rem; letter-spacing: 3px; }
-  .hero { padding: 5rem 1.5rem 3rem; }
+  .hero { padding: 4rem 1.5rem 1.5rem; }
   nav { padding: 0.75rem 1rem; }
-  .nav-links { gap: 1rem; }
-  .stats { gap: 1.5rem; }
+  .nav-links { gap: 0.75rem; }
+  .nav-links a { font-size: 0.7rem; }
+  .stats { gap: 1.25rem; }
+  .stat .value { font-size: 1rem; }
   .game-info { gap: 1.5rem; }
   .playing-card { width: 54px; height: 76px; font-size: 0.7rem; }
   .playing-card .center-suit { font-size: 1.1rem; }
-  .grid { padding: 0 1rem 3rem; }
-  .viz-page { padding: 1.5rem; }
+  .grid { grid-template-columns: 1fr; }
+  .viz-page { padding: 1rem; }
+  .category { padding: 0 1rem 2rem; }
+  .intro { padding: 1rem 1.5rem 2rem; }
+  .controls { gap: 0.5rem; }
+  .controls label { font-size: 0.7rem; }
+  input[type="range"] { width: 70px; }
+  .explanation { font-size: 0.7rem; }
+  .category-header { flex-direction: column; gap: 0.25rem; }
 }
-/* minor spacing fix */

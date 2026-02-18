@@ -28,12 +28,22 @@ Python simulations (source of truth)
 
 ## Pages
 
+### Finance
+| Page | Description |
+|------|-------------|
+| **option pricing** | Monte Carlo vs Black-Scholes European call pricing |
+| **exotic options** | Asian, barrier (up-and-out), and lookback — path-dependent pricing |
+
+### Games
+| Page | Description |
+|------|-------------|
+| **blackjack** | 6-deck shoe with Hi-Lo card counting |
+
+### Math
 | Page | Description |
 |------|-------------|
 | **π estimation** | Random sampling in the unit square, quarter-circle hit test |
 | **convergence** | CLT — sample means converge to normal across 7 distributions |
-| **option pricing** | Monte Carlo vs Black-Scholes European call pricing |
-| **blackjack** | 6-deck shoe with Hi-Lo card counting |
 | **integration** | Monte Carlo area estimation under curves (sin, gaussian, x²) |
 | **birthday problem** | Birthday paradox simulation vs theoretical probability |
 
@@ -45,6 +55,7 @@ Generate pre-computed data:
 python3 simulations/pi_estimation.py
 python3 simulations/convergence.py
 python3 simulations/option_pricing.py
+python3 simulations/exotic_options.py
 python3 simulations/integration.py
 python3 simulations/birthday_problem.py
 ```
@@ -79,6 +90,7 @@ content/                    # Markdown pages
 ├── pi-estimation/
 ├── convergence/
 ├── option-pricing/
+├── exotic-options/
 ├── blackjack/
 ├── integration/
 └── birthday-problem/
@@ -87,6 +99,7 @@ simulations/                # Python (source of truth)
 ├── pi_estimation.py
 ├── convergence.py
 ├── option_pricing.py
+├── exotic_options.py
 ├── integration.py
 └── birthday_problem.py
 
@@ -97,6 +110,7 @@ static/
     ├── pi-estimation.js
     ├── convergence.js
     ├── option-pricing.js
+    ├── exotic-options.js
     ├── blackjack.js
     ├── integration.js
     └── birthday-problem.js
