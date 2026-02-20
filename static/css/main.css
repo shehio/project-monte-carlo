@@ -131,9 +131,13 @@ nav {
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1px;
 }
+
+.grid-2 { grid-template-columns: repeat(2, 1fr); }
+.grid-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-4 { grid-template-columns: repeat(4, 1fr); }
 
 .card {
   background: var(--card);
@@ -469,7 +473,7 @@ label {
   .game-info { gap: 1.5rem; }
   .playing-card { width: 54px; height: 76px; font-size: 0.7rem; }
   .playing-card .center-suit { font-size: 1.1rem; }
-  .grid { grid-template-columns: 1fr; }
+  .grid, .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
   .viz-page { padding: 1rem; }
   .category { padding: 0 1rem 2rem; }
   .intro { padding: 1rem 1.5rem 2rem; }
@@ -479,5 +483,3 @@ label {
   .explanation { font-size: 0.7rem; }
   .category-header { flex-direction: column; gap: 0.25rem; }
 }
-/* x-axis label alignment */
-/* reorder declarations */
