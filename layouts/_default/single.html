@@ -9,6 +9,11 @@
   </div>
 </article>
 {{ with .Params.js }}
-<script src="/js/{{ . }}"></script>
+  {{ if reflect.IsSlice . }}
+    {{ range . }}<script src="/js/{{ . }}"></script>
+    {{ end }}
+  {{ else }}
+    <script src="/js/{{ . }}"></script>
+  {{ end }}
 {{ end }}
 {{ end }}
