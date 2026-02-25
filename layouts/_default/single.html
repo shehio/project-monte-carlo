@@ -10,10 +10,13 @@
 </article>
 {{ with .Params.js }}
   {{ if reflect.IsSlice . }}
-    {{ range . }}<script src="/js/{{ . }}"></script>
+    {{ range . }}
+      {{ $js := resources.Get (printf "js/%s" .) | js.Build (dict "target" "es2020") }}
+      <script src="{{ $js.RelPermalink }}"></script>
     {{ end }}
   {{ else }}
-    <script src="/js/{{ . }}"></script>
+    {{ $js := resources.Get (printf "js/%s" .) | js.Build (dict "target" "es2020") }}
+    <script src="{{ $js.RelPermalink }}"></script>
   {{ end }}
 {{ end }}
 {{ end }}
