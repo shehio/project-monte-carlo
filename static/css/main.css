@@ -459,6 +459,127 @@ label {
 
 #message.loss { color: var(--red); }
 
+/* ── game message ── */
+
+.game-message {
+  text-align: center;
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  min-height: 1.5rem;
+  color: var(--accent);
+  letter-spacing: 1px;
+}
+
+.game-message.loss { color: var(--red); }
+
+.go-score {
+  text-align: center;
+  margin-top: 0.75rem;
+  font-size: 0.85rem;
+  color: var(--text);
+  letter-spacing: 1px;
+  min-height: 1.2rem;
+}
+
+/* ── promotion overlay ── */
+
+.promotion-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+.promotion-choices {
+  display: flex;
+  gap: 0.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 1rem;
+}
+
+.promo-piece {
+  width: 64px;
+  height: 64px;
+  font-size: 2.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: #e8e8e8;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.promo-piece:hover {
+  border-color: var(--accent);
+  background: #1a1a1a;
+}
+
+/* ── mcts stats ── */
+
+.mcts-stats {
+  margin-top: 1.5rem;
+  font-size: 0.75rem;
+  max-width: 400px;
+}
+
+.mcts-header {
+  color: var(--dim);
+  letter-spacing: 1px;
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.mcts-move {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.2rem 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.mcts-label {
+  color: var(--accent);
+  min-width: 3.5rem;
+  letter-spacing: 0.5px;
+}
+
+.mcts-visits {
+  color: var(--dim);
+  min-width: 3rem;
+  text-align: right;
+}
+
+.mcts-bar {
+  flex: 1;
+  height: 6px;
+  background: var(--border);
+  position: relative;
+  min-width: 60px;
+}
+
+.mcts-bar span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  opacity: 0.6;
+}
+
+.mcts-wr {
+  color: var(--text);
+  min-width: 3.5rem;
+  text-align: right;
+}
+
 /* ── responsive ── */
 
 @media (max-width: 640px) {
@@ -482,4 +603,9 @@ label {
   input[type="range"] { width: 70px; }
   .explanation { font-size: 0.7rem; }
   .category-header { flex-direction: column; gap: 0.25rem; }
+  .promo-piece { width: 48px; height: 48px; font-size: 1.6rem; }
+  .mcts-stats { font-size: 0.7rem; }
+  .mcts-label { min-width: 2.5rem; }
+  .mcts-visits { min-width: 2.5rem; }
+  .mcts-wr { min-width: 3rem; }
 }
