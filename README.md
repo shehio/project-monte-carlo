@@ -38,6 +38,8 @@ Python simulations (source of truth)
 | Page | Description |
 |------|-------------|
 | **blackjack** | 6-deck shoe with Hi-Lo card counting |
+| **chess** | MCTS with piece-square evaluation (~1000–1200 Elo) |
+| **go** | 9×9 MCTS with random rollouts, Chinese scoring (komi 5.5) |
 
 ### Math
 | Page | Description |
@@ -92,6 +94,8 @@ content/                    # Markdown pages
 ├── option-pricing/
 ├── exotic-options/
 ├── blackjack/
+├── chess/
+├── go/
 ├── integration/
 └── birthday-problem/
 
@@ -112,6 +116,9 @@ static/
     ├── option-pricing.js
     ├── exotic-options.js
     ├── blackjack.js
+    ├── mcts.js
+    ├── chess.js
+    ├── go.js
     ├── integration.js
     └── birthday-problem.js
 
