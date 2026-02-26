@@ -610,3 +610,4 @@ label {
   .mcts-wr { min-width: 3rem; }
 }
 /* path stroke width */
+/* fix specificity */
