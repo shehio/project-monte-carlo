@@ -1,13 +1,16 @@
 ---
 title: "π estimation"
 subtitle: "random sampling in the unit square"
-js: "pi-estimation.js"
+js: "pi-estimation.ts"
 ---
 
 <div class="explanation">
   <p>A quarter circle of radius 1 inscribed in the unit square has area π/4. Drop random points in the square — the fraction landing inside the quarter circle approximates π/4.</p>
   <p class="formula">π ≈ 4 × (points inside) / (total points)</p>
   <p>The error decreases as <code>1/√n</code> — quadrupling the points halves the error. This is the Monte Carlo convergence rate.</p>
+  <p class="formula">references</p>
+  <p>Kalos & Whitlock. "Monte Carlo Methods." <em>Wiley</em>, 2008.</p>
+  <p>Kroese et al. "Why the Monte Carlo method is so important today." <em>WIREs Computational Statistics</em>, 2014.</p>
 </div>
 
 <div id="pi-indicator" class="data-indicator live"><span class="dot"></span>live simulation</div>
