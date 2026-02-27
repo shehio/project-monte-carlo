@@ -1,17 +1,19 @@
-(() => {
-  const canvas = document.getElementById('pi-canvas');
+export {};
+
+function main() {
+  const canvas = document.getElementById('pi-canvas') as HTMLCanvasElement;
   if (!canvas) return;
-  const ctx = canvas.getContext('2d');
+  const ctx = canvas.getContext('2d')!;
   const W = canvas.width, H = canvas.height;
 
-  let inside = 0, total = 0, running = false, animId = null;
+  let inside = 0, total = 0, running = false, animId = 0;
 
   const els = {
-    value: document.getElementById('pi-value'),
-    count: document.getElementById('point-count'),
-    error: document.getElementById('pi-error'),
-    speed: document.getElementById('pi-speed'),
-    start: document.getElementById('pi-start'),
+    value: document.getElementById('pi-value')!,
+    count: document.getElementById('point-count')!,
+    error: document.getElementById('pi-error')!,
+    speed: document.getElementById('pi-speed') as HTMLInputElement,
+    start: document.getElementById('pi-start')!,
     indicator: document.getElementById('pi-indicator'),
   };
 
@@ -19,7 +21,6 @@
     ctx.fillStyle = '#111';
     ctx.fillRect(0, 0, W, H);
 
-    // grid
     ctx.strokeStyle = '#1a1a1a';
     ctx.lineWidth = 0.5;
     for (let i = 0; i <= 10; i++) {
@@ -28,7 +29,6 @@
       ctx.beginPath(); ctx.moveTo(0, p); ctx.lineTo(W, p); ctx.stroke();
     }
 
-    // quarter circle
     ctx.beginPath();
     ctx.arc(0, 0, W, 0, Math.PI / 2);
     ctx.strokeStyle = '#333';
@@ -36,7 +36,7 @@
     ctx.stroke();
   }
 
-  function addPoints(n) {
+  function addPoints(n: number) {
     for (let i = 0; i < n; i++) {
       const x = Math.random();
       const y = Math.random();
@@ -77,35 +77,36 @@
     }
   });
 
-  document.getElementById('pi-reset').addEventListener('click', () => {
+  document.getElementById('pi-reset')!.addEventListener('click', () => {
     running = false;
     cancelAnimationFrame(animId);
     inside = 0;
     total = 0;
     els.start.textContent = 'start';
     els.start.classList.remove('active');
-    els.value.textContent = '—';
+    els.value.textContent = '\u2014';
     els.count.textContent = '0';
-    els.error.textContent = '—';
+    els.error.textContent = '\u2014';
     init();
   });
 
   init();
 
-  // load pre-computed data on init
   fetch('/data/pi_estimation.json')
     .then(r => r.json())
-    .then(data => {
+    .then((data: { convergence?: { pi: number }[]; total?: number; error?: number }) => {
       if (data.convergence && data.convergence.length > 0) {
         const last = data.convergence[data.convergence.length - 1];
         els.value.textContent = last.pi.toFixed(6);
-        els.count.textContent = data.total.toLocaleString();
-        els.error.textContent = data.error.toFixed(6);
+        els.count.textContent = (data.total ?? 0).toLocaleString();
+        els.error.textContent = (data.error ?? 0).toFixed(6);
         if (els.indicator) {
           els.indicator.className = 'data-indicator precomputed';
-          els.indicator.innerHTML = '<span class="dot"></span>pre-computed · ' + data.total.toLocaleString() + ' points';
+          els.indicator.innerHTML = '<span class="dot"></span>pre-computed \u00b7 ' + (data.total ?? 0).toLocaleString() + ' points';
         }
       }
     })
     .catch(() => {});
-})();
+}
+
+main();
