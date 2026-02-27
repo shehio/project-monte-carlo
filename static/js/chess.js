@@ -74,25 +74,22 @@
   // ── Chess State ──
 
   function ChessState() {
-    // Standard starting position
     this.board = new Int8Array(64);
-    // Row 0 = rank 8 (black back rank), Row 7 = rank 1 (white back rank)
     var backRank = [ROOK, KNIGHT, BISHOP, QUEEN, KING, BISHOP, KNIGHT, ROOK];
     for (var i = 0; i < 8; i++) {
-      this.board[i] = -backRank[i];         // black pieces (rank 8)
-      this.board[8 + i] = -PAWN;            // black pawns (rank 7)
-      this.board[48 + i] = PAWN;            // white pawns (rank 2)
-      this.board[56 + i] = backRank[i];     // white pieces (rank 1)
+      this.board[i] = -backRank[i];
+      this.board[8 + i] = -PAWN;
+      this.board[48 + i] = PAWN;
+      this.board[56 + i] = backRank[i];
     }
     this.current = WHITE;
-    // Castling rights: [whiteKing, whiteQueen, blackKing, blackQueen]
     this.castling = [true, true, true, true];
-    this.epSquare = -1; // en passant target square
+    this.epSquare = -1;
     this.halfmoveClock = 0;
     this.fullmoveNumber = 1;
     this.positionHistory = {};
     this._legalMovesCache = null;
-    this._gameOverResult = null; // null=unknown, 'w'=white wins, 'b'=black wins, 'd'=draw
+    this._gameOverResult = null;
   }
 
   ChessState.prototype.clone = function () {
@@ -113,10 +110,8 @@
   ChessState.prototype.rc = function (sq) { return [sq >> 3, sq & 7]; };
   ChessState.prototype.sq = function (r, c) { return (r << 3) | c; };
   ChessState.prototype.onBoard = function (r, c) { return r >= 0 && r < 8 && c >= 0 && c < 8; };
-
   ChessState.prototype.sign = function (piece) { return piece > 0 ? WHITE : BLACK_P; };
 
-  // Generate pseudo-legal moves (doesn't check if king is left in check)
   ChessState.prototype.pseudoLegalMoves = function () {
     var moves = [];
     var side = this.current;
@@ -132,7 +127,6 @@
         var dir = side === WHITE ? -1 : 1;
         var startRow = side === WHITE ? 6 : 1;
         var promoRow = side === WHITE ? 0 : 7;
-        // Forward
         var fr = r + dir;
         if (this.onBoard(fr, c) && this.board[this.sq(fr, c)] === EMPTY) {
           if (fr === promoRow) {
@@ -143,12 +137,10 @@
           } else {
             moves.push({from: sq, to: this.sq(fr, c)});
           }
-          // Double push
           if (r === startRow && this.board[this.sq(r + 2 * dir, c)] === EMPTY) {
             moves.push({from: sq, to: this.sq(r + 2 * dir, c)});
           }
         }
-        // Captures
         for (var dc = -1; dc <= 1; dc += 2) {
           var cc = c + dc;
           if (!this.onBoard(fr, cc)) continue;
@@ -207,7 +199,6 @@
             }
           }
         }
-        // Castling
         if (side === WHITE && sq === 60) {
           if (this.castling[0] && this.board[61] === EMPTY && this.board[62] === EMPTY &&
               this.board[63] === ROOK && !this.isAttacked(60, BLACK_P) && !this.isAttacked(61, BLACK_P) && !this.isAttacked(62, BLACK_P)) {
@@ -236,32 +227,29 @@
     var rc = this.rc(sq);
     var r = rc[0], c = rc[1];
 
-    // Pawn attacks
-    var pawnDir = byColor === WHITE ? 1 : -1; // direction pawns attack FROM
+    var pawnDir = byColor === WHITE ? 1 : -1;
     for (var pdc = -1; pdc <= 1; pdc += 2) {
       var pr = r + pawnDir, pc = c + pdc;
       if (this.onBoard(pr, pc) && this.board[this.sq(pr, pc)] === PAWN * byColor) return true;
     }
 
-    // Knight attacks
     var knightDeltas = [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]];
     for (var ki = 0; ki < knightDeltas.length; ki++) {
       var kr = r + knightDeltas[ki][0], kc = c + knightDeltas[ki][1];
       if (this.onBoard(kr, kc) && this.board[this.sq(kr, kc)] === KNIGHT * byColor) return true;
     }
 
-    // Sliding attacks (bishop/rook/queen)
     var diagDirs = [[-1,-1],[-1,1],[1,-1],[1,1]];
     for (var di = 0; di < diagDirs.length; di++) {
-      var dr = r + diagDirs[di][0], dc = c + diagDirs[di][1];
-      while (this.onBoard(dr, dc)) {
-        var p = this.board[this.sq(dr, dc)];
+      var dr = r + diagDirs[di][0], drc = c + diagDirs[di][1];
+      while (this.onBoard(dr, drc)) {
+        var p = this.board[this.sq(dr, drc)];
         if (p !== EMPTY) {
           if (this.sign(p) === byColor && (Math.abs(p) === BISHOP || Math.abs(p) === QUEEN)) return true;
           break;
         }
         dr += diagDirs[di][0];
-        dc += diagDirs[di][1];
+        drc += diagDirs[di][1];
       }
     }
     var straightDirs = [[-1,0],[1,0],[0,-1],[0,1]];
@@ -278,7 +266,6 @@
       }
     }
 
-    // King attacks
     for (var kdr = -1; kdr <= 1; kdr++) {
       for (var kdc = -1; kdc <= 1; kdc++) {
         if (kdr === 0 && kdc === 0) continue;
@@ -286,7 +273,6 @@
         if (this.onBoard(kkr, kkc) && this.board[this.sq(kkr, kkc)] === KING * byColor) return true;
       }
     }
-
     return false;
   };
 
@@ -304,7 +290,6 @@
     return this.isAttacked(kingPos, side === WHITE ? BLACK_P : WHITE);
   };
 
-  // Apply move (mutates state)
   ChessState.prototype.applyMove = function (move) {
     this._legalMovesCache = null;
     this._gameOverResult = null;
@@ -313,17 +298,14 @@
     var captured = this.board[move.to];
     var type = Math.abs(piece);
 
-    // En passant capture
     if (type === PAWN && move.to === this.epSquare) {
       var epCaptureSq = this.current === WHITE ? move.to + 8 : move.to - 8;
       this.board[epCaptureSq] = EMPTY;
     }
 
-    // Move piece
     this.board[move.to] = move.promo || piece;
     this.board[move.from] = EMPTY;
 
-    // Castling rook move
     if (move.castle) {
       if (move.castle === 'K') { this.board[61] = ROOK; this.board[63] = EMPTY; }
       if (move.castle === 'Q') { this.board[59] = ROOK; this.board[56] = EMPTY; }
@@ -331,14 +313,12 @@
       if (move.castle === 'q') { this.board[3] = -ROOK; this.board[0] = EMPTY; }
     }
 
-    // Update en passant
     if (type === PAWN && Math.abs(move.to - move.from) === 16) {
       this.epSquare = (move.from + move.to) / 2;
     } else {
       this.epSquare = -1;
     }
 
-    // Update castling rights
     if (type === KING) {
       if (this.current === WHITE) { this.castling[0] = false; this.castling[1] = false; }
       else { this.castling[2] = false; this.castling[3] = false; }
@@ -348,19 +328,15 @@
     if (move.from === 7 || move.to === 7) this.castling[2] = false;
     if (move.from === 0 || move.to === 0) this.castling[3] = false;
 
-    // Halfmove clock
     if (type === PAWN || captured !== EMPTY) {
       this.halfmoveClock = 0;
     } else {
       this.halfmoveClock++;
     }
 
-    // Fullmove number
     if (this.current === BLACK_P) this.fullmoveNumber++;
-
     this.current = -this.current;
 
-    // Position history for threefold repetition
     var key = this.positionKey();
     this.positionHistory[key] = (this.positionHistory[key] || 0) + 1;
   };
@@ -379,9 +355,8 @@
     var side = this.current;
     for (var i = 0; i < pseudo.length; i++) {
       var s = this.clone();
-      s.current = side; // keep current side for the test move
+      s.current = side;
       s.applyMove(pseudo[i]);
-      // After applying, current is flipped. Check if the king of 'side' is in check
       if (!s.inCheck(side)) {
         legal.push(pseudo[i]);
       }
@@ -399,13 +374,11 @@
   ChessState.prototype.getGameOverResult = function () {
     if (this._gameOverResult !== null) return this._gameOverResult;
 
-    // 50-move rule
     if (this.halfmoveClock >= 100) {
       this._gameOverResult = 'd';
       return 'd';
     }
 
-    // Threefold repetition
     var key = this.positionKey();
     if (this.positionHistory[key] >= 3) {
       this._gameOverResult = 'd';
@@ -415,15 +388,13 @@
     var moves = this.getLegalMoves();
     if (moves.length === 0) {
       if (this.inCheck(this.current)) {
-        // Checkmate - the OTHER side wins
         this._gameOverResult = this.current === WHITE ? 'b' : 'w';
       } else {
-        this._gameOverResult = 'd'; // stalemate
+        this._gameOverResult = 'd';
       }
       return this._gameOverResult;
     }
 
-    // Insufficient material
     if (this.insufficientMaterial()) {
       this._gameOverResult = 'd';
       return 'd';
@@ -439,9 +410,7 @@
       if (this.board[i] > 0) whitePieces.push(this.board[i]);
       else if (this.board[i] < 0) blackPieces.push(-this.board[i]);
     }
-    // K vs K
     if (whitePieces.length === 1 && blackPieces.length === 1) return true;
-    // K+B vs K, K+N vs K
     if (whitePieces.length === 1 && blackPieces.length === 2) {
       if (blackPieces.indexOf(KNIGHT) >= 0 || blackPieces.indexOf(BISHOP) >= 0) return true;
     }
@@ -456,12 +425,11 @@
     if (result === 'd') return 0.5;
     if (result === 'w') return player === WHITE ? 1 : 0;
     if (result === 'b') return player === BLACK_P ? 1 : 0;
-    return 0.5; // shouldn't happen
+    return 0.5;
   };
 
   ChessState.prototype.getCurrentPlayer = function () { return this.current; };
 
-  // Static evaluation: material + piece-square tables, normalized to [0, 1]
   ChessState.prototype.evaluate = function (player) {
     var score = 0;
     for (var i = 0; i < 64; i++) {
@@ -470,13 +438,10 @@
       var type = Math.abs(p);
       var side = this.sign(p);
       var val = PIECE_VALUES[type];
-      // PST lookup: for white, index = i; for black, mirror vertically
       var pstIdx = side === WHITE ? i : (7 - (i >> 3)) * 8 + (i & 7);
       val += PST[type][pstIdx];
       score += val * side;
     }
-    // Normalize: score is from white's perspective. Map to [0,1] for the given player
-    // Clamp to reasonable range (±3000 centipawns)
     var normalized = (score + 3000) / 6000;
     if (normalized < 0) normalized = 0;
     if (normalized > 1) normalized = 1;
@@ -490,15 +455,12 @@
     while (!s.isTerminal() && depth < maxDepth) {
       var moves = s.getLegalMoves();
       if (moves.length === 0) break;
-
-      // Bias toward captures
       var captures = [];
       for (var i = 0; i < moves.length; i++) {
         if (s.board[moves[i].to] !== EMPTY || moves[i].promo) {
           captures.push(moves[i]);
         }
       }
-
       var chosen;
       if (captures.length > 0 && Math.random() < 0.7) {
         chosen = captures[Math.floor(Math.random() * captures.length)];
@@ -509,6 +471,73 @@
       depth++;
     }
     return s;
+  }
+
+  // ── SAN (Standard Algebraic Notation) ──
+
+  var FILES = 'abcdefgh';
+  var PIECE_LETTERS = {1: '', 2: 'N', 3: 'B', 4: 'R', 5: 'Q', 6: 'K'};
+
+  // Generate SAN for a move BEFORE it is applied to the state
+  function toSAN(state, move) {
+    if (move.castle === 'K' || move.castle === 'k') return 'O-O';
+    if (move.castle === 'Q' || move.castle === 'q') return 'O-O-O';
+
+    var piece = state.board[move.from];
+    var type = Math.abs(piece);
+    var side = state.current;
+    var isCapture = state.board[move.to] !== EMPTY ||
+                    (type === PAWN && move.to === state.epSquare);
+
+    var san = '';
+
+    if (type === PAWN) {
+      if (isCapture) san += FILES[move.from & 7];
+    } else {
+      san += PIECE_LETTERS[type];
+      // Disambiguation: check if another piece of same type can reach same square
+      var legal = state.getLegalMoves();
+      var ambiguous = [];
+      for (var i = 0; i < legal.length; i++) {
+        var m = legal[i];
+        if (m.to === move.to && m.from !== move.from &&
+            Math.abs(state.board[m.from]) === type && !m.castle) {
+          ambiguous.push(m);
+        }
+      }
+      if (ambiguous.length > 0) {
+        var sameFile = false, sameRank = false;
+        for (var j = 0; j < ambiguous.length; j++) {
+          if ((ambiguous[j].from & 7) === (move.from & 7)) sameFile = true;
+          if ((ambiguous[j].from >> 3) === (move.from >> 3)) sameRank = true;
+        }
+        if (!sameFile) {
+          san += FILES[move.from & 7];
+        } else if (!sameRank) {
+          san += String(8 - (move.from >> 3));
+        } else {
+          san += FILES[move.from & 7] + String(8 - (move.from >> 3));
+        }
+      }
+    }
+
+    if (isCapture) san += 'x';
+    san += FILES[move.to & 7] + String(8 - (move.to >> 3));
+
+    if (move.promo) {
+      san += '=' + PIECE_LETTERS[Math.abs(move.promo)];
+    }
+
+    // Check / checkmate annotation
+    var test = state.clone();
+    test.current = side;
+    test.applyMove(move);
+    if (test.inCheck(test.current)) {
+      var testMoves = test.getLegalMoves();
+      san += testMoves.length === 0 ? '#' : '+';
+    }
+
+    return san;
   }
 
   // ── UI ──
@@ -526,21 +555,20 @@
   var statsEl, messageEl, newGameBtn, undoBtn;
   var iterationsInput, depthInput;
   var promotionOverlay, promotionCallback = null;
+  var historyEl;
   var flipped = false;
 
-  var PIECE_CHARS = {};
-  PIECE_CHARS[KING] = '\u2654';
-  PIECE_CHARS[QUEEN] = '\u2655';
-  PIECE_CHARS[ROOK] = '\u2656';
-  PIECE_CHARS[BISHOP] = '\u2657';
-  PIECE_CHARS[KNIGHT] = '\u2658';
-  PIECE_CHARS[PAWN] = '\u2659';
-  PIECE_CHARS[-KING] = '\u265A';
-  PIECE_CHARS[-QUEEN] = '\u265B';
-  PIECE_CHARS[-ROOK] = '\u265C';
-  PIECE_CHARS[-BISHOP] = '\u265D';
-  PIECE_CHARS[-KNIGHT] = '\u265E';
-  PIECE_CHARS[-PAWN] = '\u265F';
+  // Move history: array of {moveNum, white: san, black: san}
+  var moveHistory = [];
+
+  // Use FILLED glyphs (U+265A-265F) for all pieces — outline glyphs are invisible on dark bg
+  var PIECE_CHAR = {};
+  PIECE_CHAR[KING] = '\u265A';
+  PIECE_CHAR[QUEEN] = '\u265B';
+  PIECE_CHAR[ROOK] = '\u265C';
+  PIECE_CHAR[BISHOP] = '\u265D';
+  PIECE_CHAR[KNIGHT] = '\u265E';
+  PIECE_CHAR[PAWN] = '\u265F';
 
   function init() {
     canvas = document.getElementById('chess-board');
@@ -553,6 +581,7 @@
     iterationsInput = document.getElementById('chess-iterations');
     depthInput = document.getElementById('chess-depth');
     promotionOverlay = document.getElementById('promotion-overlay');
+    historyEl = document.getElementById('move-history');
 
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
@@ -561,7 +590,6 @@
     newGameBtn.addEventListener('click', newGame);
     if (undoBtn) undoBtn.addEventListener('click', onUndo);
 
-    // Promotion buttons
     var promoButtons = document.querySelectorAll('.promo-piece');
     for (var i = 0; i < promoButtons.length; i++) {
       promoButtons[i].addEventListener('click', function () {
@@ -591,22 +619,32 @@
     legalMovesForSelected = [];
     lastMoveFrom = -1;
     lastMoveTo = -1;
+    moveHistory = [];
+    moveStack = [];
     messageEl.textContent = 'white to play';
     messageEl.className = '';
     statsEl.innerHTML = '';
     if (promotionOverlay) promotionOverlay.style.display = 'none';
+    renderHistory();
     draw();
   }
 
   var moveStack = [];
 
   function onUndo() {
-    // Can't undo during AI thinking or if no moves made
     if (aiThinking || moveStack.length < 2) return;
-    // Undo 2 moves (player + AI)
     var prevState = moveStack[moveStack.length - 2];
     moveStack.splice(moveStack.length - 2, 2);
     gameState = prevState.clone();
+    // Remove last full move (or last half-move pair)
+    if (moveHistory.length > 0) {
+      var last = moveHistory[moveHistory.length - 1];
+      if (last.black) {
+        moveHistory.pop();
+      } else {
+        moveHistory.pop();
+      }
+    }
     gameOver = false;
     selectedSquare = -1;
     legalMovesForSelected = [];
@@ -615,11 +653,11 @@
     messageEl.textContent = 'white to play';
     messageEl.className = '';
     statsEl.innerHTML = '';
+    renderHistory();
     draw();
   }
 
   function displaySquare(sq) {
-    // If flipped, mirror
     if (flipped) return 63 - sq;
     return sq;
   }
@@ -664,11 +702,9 @@
           if (legalMovesForSelected[li].to === sq) {
             ctx.fillStyle = 'rgba(0, 212, 170, 0.3)';
             if (gameState.board[sq] !== EMPTY) {
-              // Capture indicator: ring
               ctx.beginPath();
               ctx.arc(pos.x + SQUARE_SIZE / 2, pos.y + SQUARE_SIZE / 2, SQUARE_SIZE * 0.42, 0, Math.PI * 2);
               ctx.fill();
-              // Cut out inner circle to make ring
               ctx.fillStyle = isLight ? '#2a2a2a' : '#1a1a1a';
               ctx.beginPath();
               ctx.arc(pos.x + SQUARE_SIZE / 2, pos.y + SQUARE_SIZE / 2, SQUARE_SIZE * 0.35, 0, Math.PI * 2);
@@ -683,14 +719,34 @@
         }
       }
 
-      // Piece
+      // Piece — use filled glyphs for both sides, distinguish by color + stroke
       var piece = gameState.board[sq];
       if (piece !== EMPTY) {
-        ctx.fillStyle = piece > 0 ? '#e8e8e8' : '#888';
-        ctx.font = (SQUARE_SIZE * 0.7) + 'px serif';
+        var type = Math.abs(piece);
+        var isWhitePiece = piece > 0;
+        var cx = pos.x + SQUARE_SIZE / 2;
+        var cy = pos.y + SQUARE_SIZE / 2 + 2;
+        ctx.font = (SQUARE_SIZE * 0.75) + 'px serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(PIECE_CHARS[piece], pos.x + SQUARE_SIZE / 2, pos.y + SQUARE_SIZE / 2 + 2);
+
+        if (isWhitePiece) {
+          // White pieces: light fill with dark outline for contrast
+          ctx.strokeStyle = '#111';
+          ctx.lineWidth = SQUARE_SIZE * 0.04;
+          ctx.lineJoin = 'round';
+          ctx.strokeText(PIECE_CHAR[type], cx, cy);
+          ctx.fillStyle = '#f0f0f0';
+          ctx.fillText(PIECE_CHAR[type], cx, cy);
+        } else {
+          // Black pieces: dark fill with subtle lighter outline
+          ctx.strokeStyle = '#666';
+          ctx.lineWidth = SQUARE_SIZE * 0.03;
+          ctx.lineJoin = 'round';
+          ctx.strokeText(PIECE_CHAR[type], cx, cy);
+          ctx.fillStyle = '#222';
+          ctx.fillText(PIECE_CHAR[type], cx, cy);
+        }
       }
     }
 
@@ -698,13 +754,12 @@
     ctx.font = (SQUARE_SIZE * 0.18) + 'px JetBrains Mono, monospace';
     ctx.textAlign = 'left';
     ctx.textBaseline = 'bottom';
-    var files = 'abcdefgh';
     for (var fi = 0; fi < 8; fi++) {
       var fSq = flipped ? 63 - (56 + fi) : 56 + fi;
       var fPos = squareToPixel(fSq);
       var fR = fSq >> 3, fC = fSq & 7;
       ctx.fillStyle = (fR + fC) % 2 === 0 ? '#555' : '#444';
-      ctx.fillText(files[fC], fPos.x + 2, fPos.y + SQUARE_SIZE - 2);
+      ctx.fillText(FILES[fC], fPos.x + 2, fPos.y + SQUARE_SIZE - 2);
     }
     ctx.textAlign = 'right';
     ctx.textBaseline = 'top';
@@ -718,28 +773,35 @@
     }
   }
 
-  function moveToAlgebraic(move) {
-    var files = 'abcdefgh';
-    var from = move.from;
-    var to = move.to;
-    var piece = gameState.board[from] || gameState.board[to]; // after move, check 'to'
-    var type = Math.abs(piece);
-
-    if (move.castle === 'K' || move.castle === 'k') return 'O-O';
-    if (move.castle === 'Q' || move.castle === 'q') return 'O-O-O';
-
-    var str = '';
-    if (type !== PAWN) {
-      var chars = {2: 'N', 3: 'B', 4: 'R', 5: 'Q', 6: 'K'};
-      str += chars[type];
+  function recordMove(san, side) {
+    if (side === WHITE) {
+      // fullmoveNumber is still current (increments after black's move)
+      moveHistory.push({ num: gameState.fullmoveNumber, white: san, black: '' });
+    } else {
+      if (moveHistory.length > 0) {
+        moveHistory[moveHistory.length - 1].black = san;
+      }
     }
-    str += files[from & 7] + (8 - (from >> 3));
-    str += files[to & 7] + (8 - (to >> 3));
-    if (move.promo) {
-      var promoChars = {2: 'N', 3: 'B', 4: 'R', 5: 'Q'};
-      str += '=' + promoChars[Math.abs(move.promo)];
+    renderHistory();
+  }
+
+  function renderHistory() {
+    if (!historyEl) return;
+    if (moveHistory.length === 0) {
+      historyEl.innerHTML = '<span class="history-placeholder">moves will appear here</span>';
+      return;
     }
-    return str;
+    var html = '';
+    for (var i = 0; i < moveHistory.length; i++) {
+      var m = moveHistory[i];
+      html += '<span class="move-num">' + m.num + '.</span>' +
+              '<span class="move-white">' + m.white + '</span>';
+      if (m.black) {
+        html += '<span class="move-black">' + m.black + '</span>';
+      }
+    }
+    historyEl.innerHTML = html;
+    historyEl.scrollTop = historyEl.scrollHeight;
   }
 
   function onCanvasClick(e) {
@@ -753,7 +815,6 @@
     if (sq < 0) return;
 
     if (selectedSquare >= 0) {
-      // Try to make a move
       var targetMoves = [];
       for (var i = 0; i < legalMovesForSelected.length; i++) {
         if (legalMovesForSelected[i].to === sq) {
@@ -762,7 +823,6 @@
       }
 
       if (targetMoves.length > 1) {
-        // Promotion - show overlay
         showPromotionOverlay(targetMoves);
         return;
       } else if (targetMoves.length === 1) {
@@ -771,7 +831,6 @@
       }
     }
 
-    // Select piece
     if (gameState.board[sq] !== EMPTY && gameState.sign(gameState.board[sq]) === playerColor) {
       selectedSquare = sq;
       var allLegal = gameState.getLegalMoves();
@@ -802,9 +861,12 @@
 
   function makePlayerMove(move) {
     moveStack.push(gameState.clone());
+    var san = toSAN(gameState, move);
+    var side = gameState.current;
     lastMoveFrom = move.from;
     lastMoveTo = move.to;
     gameState.applyMove(move);
+    recordMove(san, side);
     selectedSquare = -1;
     legalMovesForSelected = [];
     draw();
@@ -835,11 +897,13 @@
       });
 
       if (result.bestMove) {
-        var algebraic = moveToAlgebraic(result.bestMove);
+        var san = toSAN(gameState, result.bestMove);
+        var side = gameState.current;
         lastMoveFrom = result.bestMove.from;
         lastMoveTo = result.bestMove.to;
         gameState.applyMove(result.bestMove);
-        messageEl.textContent = 'played ' + algebraic;
+        recordMove(san, side);
+        messageEl.textContent = san;
       }
 
       updateStats(result.stats);
@@ -878,20 +942,14 @@
     var maxVisits = stats.topMoves.length > 0 ? stats.topMoves[0].visits : 1;
     for (var i = 0; i < Math.min(stats.topMoves.length, 6); i++) {
       var m = stats.topMoves[i];
-      // Build algebraic notation for display
       var label = '';
       if (m.move.castle === 'K' || m.move.castle === 'k') label = 'O-O';
       else if (m.move.castle === 'Q' || m.move.castle === 'q') label = 'O-O-O';
       else {
-        var files = 'abcdefgh';
-        // We need to peek at the board before the move was applied
-        // Since stats are computed before the best move, board state may have changed
-        // Use generic from-to notation
-        label = files[m.move.from & 7] + (8 - (m.move.from >> 3)) +
-                files[m.move.to & 7] + (8 - (m.move.to >> 3));
+        label = FILES[m.move.from & 7] + (8 - (m.move.from >> 3)) +
+                FILES[m.move.to & 7] + (8 - (m.move.to >> 3));
         if (m.move.promo) {
-          var promoChars = {2:'N',3:'B',4:'R',5:'Q'};
-          label += promoChars[Math.abs(m.move.promo)];
+          label += PIECE_LETTERS[Math.abs(m.move.promo)];
         }
       }
       var barWidth = Math.max(2, (m.visits / maxVisits) * 100);

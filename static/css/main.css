@@ -609,5 +609,3 @@ label {
   .mcts-visits { min-width: 2.5rem; }
   .mcts-wr { min-width: 3rem; }
 }
-/* path stroke width */
-/* fix specificity */
