@@ -1,23 +1,25 @@
-(() => {
-  const canvas = document.getElementById('bday-canvas');
+export {};
+
+function main() {
+  const canvas = document.getElementById('bday-canvas') as HTMLCanvasElement;
   if (!canvas) return;
-  const ctx = canvas.getContext('2d');
+  const ctx = canvas.getContext('2d')!;
   const W = canvas.width, H = canvas.height;
 
-  let results = {};  // room_size -> { sim, trials }
-  let precomputedData = null;
+  interface SimResult { sim: number; trials: number; }
+  let results: Record<number, SimResult> = {};
 
   const els = {
-    n: document.getElementById('bday-n'),
-    pSim: document.getElementById('bday-p-sim'),
-    pTheory: document.getElementById('bday-p-theory'),
-    trials: document.getElementById('bday-trials'),
-    size: document.getElementById('bday-size'),
-    run: document.getElementById('bday-run'),
+    n: document.getElementById('bday-n')!,
+    pSim: document.getElementById('bday-p-sim')!,
+    pTheory: document.getElementById('bday-p-theory')!,
+    trials: document.getElementById('bday-trials')!,
+    size: document.getElementById('bday-size') as HTMLInputElement,
+    run: document.getElementById('bday-run')!,
     indicator: document.getElementById('bday-indicator'),
   };
 
-  function theoreticalP(n) {
+  function theoreticalP(n: number): number {
     if (n > 365) return 1;
     let p = 1;
     for (let i = 1; i < n; i++) {
@@ -26,10 +28,10 @@
     return 1 - p;
   }
 
-  function simulate(roomSize, numTrials) {
+  function simulate(roomSize: number, numTrials: number): number {
     let shared = 0;
     for (let t = 0; t < numTrials; t++) {
-      const seen = new Set();
+      const seen = new Set<number>();
       let found = false;
       for (let i = 0; i < roomSize; i++) {
         const b = Math.floor(Math.random() * 365);
@@ -49,7 +51,6 @@
     const plotW = W - pad.left - pad.right;
     const plotH = H - pad.top - pad.bottom;
 
-    // axes
     ctx.strokeStyle = '#333';
     ctx.lineWidth = 1;
     ctx.beginPath();
@@ -58,7 +59,6 @@
     ctx.lineTo(pad.left + plotW, pad.top + plotH);
     ctx.stroke();
 
-    // y-axis labels
     ctx.fillStyle = '#555';
     ctx.font = '10px JetBrains Mono';
     ctx.textAlign = 'right';
@@ -72,7 +72,6 @@
       ctx.stroke();
     }
 
-    // x-axis labels
     ctx.textAlign = 'center';
     for (let n = 10; n <= 70; n += 10) {
       const x = pad.left + ((n - 2) / 68) * plotW;
@@ -80,7 +79,6 @@
     }
     ctx.fillText('room size', pad.left + plotW / 2, H - 5);
 
-    // 50% line
     const y50 = pad.top + plotH - 0.5 * plotH;
     ctx.strokeStyle = '#333';
     ctx.setLineDash([4, 4]);
@@ -90,7 +88,6 @@
     ctx.stroke();
     ctx.setLineDash([]);
 
-    // theoretical curve
     ctx.beginPath();
     ctx.strokeStyle = '#555';
     ctx.lineWidth = 1.5;
@@ -103,7 +100,6 @@
     ctx.stroke();
     ctx.lineWidth = 1;
 
-    // simulated bars
     const barW = Math.max(2, plotW / 69 - 1);
     for (let n = 2; n <= 70; n++) {
       if (!results[n]) continue;
@@ -113,11 +109,10 @@
       ctx.fillRect(x, pad.top + plotH - barH, barW, barH);
     }
 
-    // legend
     ctx.fillStyle = '#555';
     ctx.font = '10px JetBrains Mono';
     ctx.textAlign = 'left';
-    ctx.fillText('— theoretical', pad.left + plotW - 130, pad.top + 15);
+    ctx.fillText('\u2014 theoretical', pad.left + plotW - 130, pad.top + 15);
     ctx.fillStyle = 'rgba(0,212,170,0.8)';
     ctx.fillRect(pad.left + plotW - 140, pad.top + 24, 8, 8);
     ctx.fillStyle = '#555';
@@ -126,14 +121,14 @@
 
   function updateDisplay() {
     const n = parseInt(els.size.value);
-    els.n.textContent = n;
+    els.n.textContent = String(n);
     els.pTheory.textContent = theoreticalP(n).toFixed(4);
 
     if (results[n]) {
       els.pSim.textContent = results[n].sim.toFixed(4);
       els.trials.textContent = results[n].trials.toLocaleString();
     } else {
-      els.pSim.textContent = '—';
+      els.pSim.textContent = '\u2014';
       els.trials.textContent = '0';
     }
   }
@@ -146,12 +141,10 @@
       els.indicator.innerHTML = '<span class="dot"></span>live simulation';
     }
 
-    // simulate for all room sizes 2-70
     for (let n = 2; n <= 70; n++) {
       const p = simulate(n, 10000);
       const prev = results[n];
       if (prev) {
-        // running average
         const totalTrials = prev.trials + 10000;
         results[n] = {
           sim: (prev.sim * prev.trials + p * 10000) / totalTrials,
@@ -166,9 +159,9 @@
     updateDisplay();
   });
 
-  document.getElementById('bday-reset').addEventListener('click', () => {
+  document.getElementById('bday-reset')!.addEventListener('click', () => {
     results = {};
-    els.pSim.textContent = '—';
+    els.pSim.textContent = '\u2014';
     els.trials.textContent = '0';
     drawChart();
     updateDisplay();
@@ -177,12 +170,10 @@
   drawChart();
   updateDisplay();
 
-  // load pre-computed data
   fetch('/data/birthday_problem.json')
     .then(r => r.json())
-    .then(data => {
+    .then((data: { results?: { room_size: number; p_simulated: number; trials: number }[]; num_trials?: number }) => {
       if (data.results) {
-        precomputedData = data;
         for (const entry of data.results) {
           results[entry.room_size] = {
             sim: entry.p_simulated,
@@ -193,9 +184,11 @@
         updateDisplay();
         if (els.indicator) {
           els.indicator.className = 'data-indicator precomputed';
-          els.indicator.innerHTML = '<span class="dot"></span>pre-computed · ' + data.num_trials.toLocaleString() + ' trials each';
+          els.indicator.innerHTML = '<span class="dot"></span>pre-computed \u00b7 ' + (data.num_trials ?? 0).toLocaleString() + ' trials each';
         }
       }
     })
     .catch(() => {});
-})();
+}
+
+main();
