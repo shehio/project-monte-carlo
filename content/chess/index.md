@@ -13,8 +13,18 @@ js: ["mcts.js", "chess.js"]
 
 <div class="data-indicator live"><span class="dot"></span> live · mcts</div>
 
-<div class="canvas-wrap">
-  <canvas id="chess-board" width="560" height="560"></canvas>
+<div class="chess-layout">
+  <div class="chess-board-col">
+    <div class="canvas-wrap">
+      <canvas id="chess-board" width="560" height="560"></canvas>
+    </div>
+  </div>
+  <div class="chess-history-col">
+    <div class="history-header">moves</div>
+    <div id="move-history" class="move-history">
+      <span class="history-placeholder">moves will appear here</span>
+    </div>
+  </div>
 </div>
 
 <div id="chess-message" class="game-message">white to play</div>
