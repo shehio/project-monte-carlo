@@ -41,6 +41,12 @@ nav {
   font-size: 1rem;
   letter-spacing: 3px;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.nav-logo svg {
+  display: block;
 }
 
 .nav-links {
@@ -459,6 +465,65 @@ label {
 
 #message.loss { color: var(--red); }
 
+/* ── chess layout ── */
+
+.chess-layout {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+.chess-board-col {
+  flex-shrink: 0;
+}
+
+.chess-history-col {
+  flex: 1;
+  min-width: 140px;
+  max-width: 200px;
+}
+
+.history-header {
+  font-size: 0.7rem;
+  color: var(--dim);
+  letter-spacing: 1px;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 0.5rem;
+}
+
+.move-history {
+  font-size: 0.75rem;
+  line-height: 1.8;
+  max-height: 560px;
+  overflow-y: auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 0 0.15rem;
+}
+
+.move-history .move-num {
+  color: var(--dim);
+  min-width: 2rem;
+  margin-right: 0.2rem;
+}
+
+.move-history .move-white,
+.move-history .move-black {
+  color: var(--text);
+  min-width: 2.8rem;
+  margin-right: 0.4rem;
+}
+
+.move-history .move-white { color: var(--accent); }
+
+.move-history .history-placeholder {
+  color: var(--dim);
+  font-size: 0.7rem;
+  font-style: italic;
+}
+
 /* ── game message ── */
 
 .game-message {
@@ -603,10 +668,12 @@ label {
   input[type="range"] { width: 70px; }
   .explanation { font-size: 0.7rem; }
   .category-header { flex-direction: column; gap: 0.25rem; }
+  .chess-layout { flex-direction: column; }
+  .chess-history-col { max-width: none; }
+  .move-history { max-height: 200px; }
   .promo-piece { width: 48px; height: 48px; font-size: 1.6rem; }
   .mcts-stats { font-size: 0.7rem; }
   .mcts-label { min-width: 2.5rem; }
   .mcts-visits { min-width: 2.5rem; }
   .mcts-wr { min-width: 3rem; }
 }
-/* fallback font stack */
