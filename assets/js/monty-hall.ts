@@ -1,87 +1,68 @@
-(() => {
+import { shortNum, niceStep, shuffle } from './lib/math';
+import { pixelSVG, PA, PD, PW, PE } from './lib/pixel-art';
+
+function main() {
   'use strict';
 
-  // ── Pixel art SVGs ──
-
-  function pixelSVG(w, h, pixels, color) {
-    let rects = '';
-    for (let y = 0; y < pixels.length; y++) {
-      for (let x = 0; x < pixels[y].length; x++) {
-        if (pixels[y][x]) {
-          rects += '<rect x="' + x + '" y="' + y + '" width="1" height="1" fill="' +
-                   (typeof pixels[y][x] === 'string' ? pixels[y][x] : color) + '"/>';
-        }
-      }
-    }
-    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + w + ' ' + h +
-           '" shape-rendering="crispEdges">' + rects + '</svg>';
-  }
-
-  const PA = '#00d4aa';
-  const PD = '#555';
-  const PW = '#c8c8c8';
-  const PR = '#e84057';
-  const PE = '#111';
-
   const GOAT_PIXELS = [
-    [0, 0, 0, 0, 0, 0, 0, 0,PA, 0,PA, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0,PA, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0,PD,PD,PD,PD, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0,PD,PW,PW,PE,PW,PD, 0, 0],
-    [0, 0, 0, 0, 0, 0,PD,PW,PW,PW,PD, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0,PD,PD,PD, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0,PD, 0, 0, 0, 0, 0],
-    [PD, 0,PD,PD,PD,PD,PD,PD,PD, 0, 0, 0, 0, 0],
-    [0,PD,PW,PW,PW,PW,PW,PW,PD, 0, 0, 0, 0, 0],
-    [0,PD,PW,PW,PW,PW,PW,PW,PD, 0, 0, 0, 0, 0],
-    [0,PD,PW,PW,PW,PW,PW,PW,PD, 0, 0, 0, 0, 0],
-    [0, 0,PD,PW,PD, 0,PD,PW,PD, 0, 0, 0, 0, 0],
-    [0, 0,PD,PW,PD, 0,PD,PW,PD, 0, 0, 0, 0, 0],
-    [0, 0,PD,PD,PD, 0,PD,PD,PD, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, PA, 0, PA, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, PA, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, PD, PD, PD, PD, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, PD, PW, PW, PE, PW, PD, 0, 0],
+    [0, 0, 0, 0, 0, 0, PD, PW, PW, PW, PD, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, PD, PD, PD, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, PD, 0, 0, 0, 0, 0],
+    [PD, 0, PD, PD, PD, PD, PD, PD, PD, 0, 0, 0, 0, 0],
+    [0, PD, PW, PW, PW, PW, PW, PW, PD, 0, 0, 0, 0, 0],
+    [0, PD, PW, PW, PW, PW, PW, PW, PD, 0, 0, 0, 0, 0],
+    [0, PD, PW, PW, PW, PW, PW, PW, PD, 0, 0, 0, 0, 0],
+    [0, 0, PD, PW, PD, 0, PD, PW, PD, 0, 0, 0, 0, 0],
+    [0, 0, PD, PW, PD, 0, PD, PW, PD, 0, 0, 0, 0, 0],
+    [0, 0, PD, PD, PD, 0, PD, PD, PD, 0, 0, 0, 0, 0],
   ];
 
   const CAR_PIXELS = [
-    [0,0,0,PA,PA,PA,PA,PA,0,0,0],
-    [0,0,PA,PA,PA,PA,PA,PA,PA,0,0],
-    [0,PA,PA,PD,PA,PA,PA,PD,PA,PA,0],
-    [PA,PA,PA,PA,PA,PA,PA,PA,PA,PA,PA],
-    [PA,PA,PA,PA,PA,PA,PA,PA,PA,PA,PA],
-    [0,PA,PW,PA,0,0,0,PA,PW,PA,0],
-    [0,0,PW,0,0,0,0,0,PW,0,0],
+    [0, 0, 0, PA, PA, PA, PA, PA, 0, 0, 0],
+    [0, 0, PA, PA, PA, PA, PA, PA, PA, 0, 0],
+    [0, PA, PA, PD, PA, PA, PA, PD, PA, PA, 0],
+    [PA, PA, PA, PA, PA, PA, PA, PA, PA, PA, PA],
+    [PA, PA, PA, PA, PA, PA, PA, PA, PA, PA, PA],
+    [0, PA, PW, PA, 0, 0, 0, PA, PW, PA, 0],
+    [0, 0, PW, 0, 0, 0, 0, 0, PW, 0, 0],
   ];
 
   const DOOR_PIXELS = [
-    [PD,PD,PD,PD,PD,PD,PD,PD,PD,PD],
-    [PD,0,0,0,0,0,0,0,0,PD],
-    [PD,0,0,0,0,0,0,0,0,PD],
-    [PD,0,0,0,0,0,0,0,0,PD],
-    [PD,0,0,0,0,0,0,0,0,PD],
-    [PD,0,0,0,0,0,0,0,0,PD],
-    [PD,0,0,0,0,0,0,0,0,PD],
-    [PD,0,0,0,0,0,0,PW,0,PD],
-    [PD,0,0,0,0,0,0,0,0,PD],
-    [PD,0,0,0,0,0,0,0,0,PD],
-    [PD,0,0,0,0,0,0,0,0,PD],
-    [PD,0,0,0,0,0,0,0,0,PD],
-    [PD,0,0,0,0,0,0,0,0,PD],
-    [PD,PD,PD,PD,PD,PD,PD,PD,PD,PD],
+    [PD, PD, PD, PD, PD, PD, PD, PD, PD, PD],
+    [PD, 0, 0, 0, 0, 0, 0, 0, 0, PD],
+    [PD, 0, 0, 0, 0, 0, 0, 0, 0, PD],
+    [PD, 0, 0, 0, 0, 0, 0, 0, 0, PD],
+    [PD, 0, 0, 0, 0, 0, 0, 0, 0, PD],
+    [PD, 0, 0, 0, 0, 0, 0, 0, 0, PD],
+    [PD, 0, 0, 0, 0, 0, 0, 0, 0, PD],
+    [PD, 0, 0, 0, 0, 0, 0, PW, 0, PD],
+    [PD, 0, 0, 0, 0, 0, 0, 0, 0, PD],
+    [PD, 0, 0, 0, 0, 0, 0, 0, 0, PD],
+    [PD, 0, 0, 0, 0, 0, 0, 0, 0, PD],
+    [PD, 0, 0, 0, 0, 0, 0, 0, 0, PD],
+    [PD, 0, 0, 0, 0, 0, 0, 0, 0, PD],
+    [PD, PD, PD, PD, PD, PD, PD, PD, PD, PD],
   ];
 
-  const NUM_PIXELS = {
-    0: [[1,1,1],[1,0,1],[1,0,1],[1,0,1],[1,1,1]],
-    1: [[0,1,0],[1,1,0],[0,1,0],[0,1,0],[1,1,1]],
-    2: [[1,1,0],[0,0,1],[0,1,0],[1,0,0],[1,1,1]],
-    3: [[1,1,0],[0,0,1],[0,1,0],[0,0,1],[1,1,0]],
-    4: [[1,0,1],[1,0,1],[1,1,1],[0,0,1],[0,0,1]],
-    5: [[1,1,1],[1,0,0],[1,1,0],[0,0,1],[1,1,0]],
-    6: [[0,1,1],[1,0,0],[1,1,1],[1,0,1],[1,1,1]],
-    7: [[1,1,1],[0,0,1],[0,1,0],[0,1,0],[0,1,0]],
-    8: [[1,1,1],[1,0,1],[1,1,1],[1,0,1],[1,1,1]],
-    9: [[1,1,1],[1,0,1],[1,1,1],[0,0,1],[1,1,0]],
+  const NUM_PIXELS: Record<number, number[][]> = {
+    0: [[1, 1, 1], [1, 0, 1], [1, 0, 1], [1, 0, 1], [1, 1, 1]],
+    1: [[0, 1, 0], [1, 1, 0], [0, 1, 0], [0, 1, 0], [1, 1, 1]],
+    2: [[1, 1, 0], [0, 0, 1], [0, 1, 0], [1, 0, 0], [1, 1, 1]],
+    3: [[1, 1, 0], [0, 0, 1], [0, 1, 0], [0, 0, 1], [1, 1, 0]],
+    4: [[1, 0, 1], [1, 0, 1], [1, 1, 1], [0, 0, 1], [0, 0, 1]],
+    5: [[1, 1, 1], [1, 0, 0], [1, 1, 0], [0, 0, 1], [1, 1, 0]],
+    6: [[0, 1, 1], [1, 0, 0], [1, 1, 1], [1, 0, 1], [1, 1, 1]],
+    7: [[1, 1, 1], [0, 0, 1], [0, 1, 0], [0, 1, 0], [0, 1, 0]],
+    8: [[1, 1, 1], [1, 0, 1], [1, 1, 1], [1, 0, 1], [1, 1, 1]],
+    9: [[1, 1, 1], [1, 0, 1], [1, 1, 1], [0, 0, 1], [1, 1, 0]],
   };
 
-  function makeDoorSVG(num) {
-    const px = [];
+  function makeDoorSVG(num: number): string {
+    const px: (string | number)[][] = [];
     for (let y = 0; y < DOOR_PIXELS.length; y++) {
       px.push(DOOR_PIXELS[y].slice());
     }
@@ -106,27 +87,23 @@
   const GOAT_SVG = pixelSVG(14, 14, GOAT_PIXELS, PD);
   const CAR_SVG = pixelSVG(11, 7, CAR_PIXELS, PA);
 
-  // ── Configuration ──
-
-  const doorCountInput = document.getElementById('mh-door-count');
-  const trialCountInput = document.getElementById('mh-trial-count');
-  const doorsContainer = document.getElementById('monty-doors');
-  const messageEl = document.getElementById('mh-message');
-  const choiceEl = document.getElementById('mh-choice');
-  const newBtn = document.getElementById('mh-new');
+  const doorCountInput = document.getElementById('mh-door-count') as HTMLInputElement | null;
+  const trialCountInput = document.getElementById('mh-trial-count') as HTMLInputElement | null;
+  const doorsContainer = document.getElementById('monty-doors')!;
+  const messageEl = document.getElementById('mh-message')!;
+  const choiceEl = document.getElementById('mh-choice')!;
+  const newBtn = document.getElementById('mh-new')!;
   const formulaEl = document.getElementById('mh-formula');
   if (!doorsContainer || !messageEl) return;
 
-  let numDoors = parseInt(doorCountInput?.value) || 3;
-  let numTrials = parseInt(trialCountInput?.value) || 10000;
+  let numDoors = parseInt(doorCountInput?.value ?? '3') || 3;
+  let numTrials = parseInt(trialCountInput?.value ?? '10000') || 10000;
 
-  // ── Interactive game ──
-
-  let doors = [];
+  let doors: HTMLDivElement[] = [];
   let carDoor = -1;
   let picked = -1;
-  let revealedDoors = [];
-  let phase = 'pick';
+  let revealedDoors: number[] = [];
+  let phase: 'pick' | 'reveal' | 'decide' | 'result' = 'pick';
 
   let gamesPlayed = 0;
   let switchWins = 0;
@@ -135,17 +112,16 @@
   let stayGames = 0;
 
   const statEls = {
-    games: document.getElementById('mh-games'),
-    swWins: document.getElementById('mh-sw-wins'),
-    stWins: document.getElementById('mh-st-wins'),
-    swPct: document.getElementById('mh-sw-pct'),
-    stPct: document.getElementById('mh-st-pct'),
+    games: document.getElementById('mh-games')!,
+    swWins: document.getElementById('mh-sw-wins')!,
+    stWins: document.getElementById('mh-st-wins')!,
+    swPct: document.getElementById('mh-sw-pct')!,
+    stPct: document.getElementById('mh-st-pct')!,
   };
 
-  function buildDoors(n) {
+  function buildDoors(n: number) {
     doorsContainer.innerHTML = '';
     doors = [];
-    // Scale door size based on count
     const dw = Math.min(160, Math.max(70, Math.floor(560 / n)));
     const dh = Math.round(dw * 1.375);
     doorsContainer.style.setProperty('--door-w', dw + 'px');
@@ -153,7 +129,7 @@
     for (let i = 0; i < n; i++) {
       const d = document.createElement('div');
       d.className = 'door';
-      d.setAttribute('data-door', i);
+      d.setAttribute('data-door', String(i));
       d.innerHTML = '<div class="door-front"></div><div class="door-back"></div>';
       d.addEventListener('click', () => {
         if (phase !== 'pick') return;
@@ -167,6 +143,8 @@
       doors.push(d);
     }
   }
+
+  function gcd(a: number, b: number): number { return b === 0 ? a : gcd(b, a % b); }
 
   function updateFormula() {
     if (!formulaEl) return;
@@ -188,29 +166,19 @@
     phase = 'pick';
     doors.forEach((d, i) => {
       d.classList.remove('opened', 'selected', 'highlighted', 'winner', 'loser');
-      d.querySelector('.door-front').innerHTML = makeDoorSVG(i + 1);
-      d.querySelector('.door-back').innerHTML = '';
+      d.querySelector('.door-front')!.innerHTML = makeDoorSVG(i + 1);
+      d.querySelector('.door-back')!.innerHTML = '';
     });
     choiceEl.style.display = 'none';
     messageEl.textContent = 'pick a door';
     messageEl.className = 'game-message';
   }
 
-  function shuffle(arr) {
-    for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      const tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
-    }
-  }
-
   function revealGoats() {
-    // Host reveals N-2 goat doors, leaving your pick + 1 other door
-    const goatOptions = [];
+    const goatOptions: number[] = [];
     for (let i = 0; i < numDoors; i++) {
       if (i !== picked && i !== carDoor) goatOptions.push(i);
     }
-    // If picked == car: goatOptions has N-1 entries, reveal N-2 (keep 1 random goat)
-    // If picked != car: goatOptions has N-2 entries, reveal all (car stays closed)
     if (picked === carDoor) {
       shuffle(goatOptions);
       revealedDoors = goatOptions.slice(0, numDoors - 2);
@@ -220,7 +188,7 @@
 
     revealedDoors.forEach(idx => {
       doors[idx].classList.add('opened');
-      doors[idx].querySelector('.door-back').innerHTML = GOAT_SVG;
+      doors[idx].querySelector('.door-back')!.innerHTML = GOAT_SVG;
     });
 
     phase = 'decide';
@@ -234,21 +202,21 @@
     choiceEl.style.display = 'flex';
   }
 
-  function findRemaining() {
+  function findRemaining(): number {
     for (let i = 0; i < numDoors; i++) {
       if (i !== picked && revealedDoors.indexOf(i) === -1) return i;
     }
     return -1;
   }
 
-  function resolve(didSwitch) {
+  function resolve(didSwitch: boolean) {
     choiceEl.style.display = 'none';
     const finalDoor = didSwitch ? findRemaining() : picked;
 
     doors.forEach((d, i) => {
       d.classList.remove('highlighted', 'selected');
       d.classList.add('opened');
-      d.querySelector('.door-back').innerHTML = i === carDoor ? CAR_SVG : GOAT_SVG;
+      d.querySelector('.door-back')!.innerHTML = i === carDoor ? CAR_SVG : GOAT_SVG;
     });
 
     const won = finalDoor === carDoor;
@@ -277,24 +245,23 @@
   }
 
   function updateGameStats() {
-    statEls.games.textContent = gamesPlayed;
-    statEls.swWins.textContent = switchWins;
-    statEls.stWins.textContent = stayWins;
+    statEls.games.textContent = String(gamesPlayed);
+    statEls.swWins.textContent = String(switchWins);
+    statEls.stWins.textContent = String(stayWins);
     statEls.swPct.textContent = switchGames > 0
       ? (switchWins / switchGames * 100).toFixed(1) + '%' : '\u2014';
     statEls.stPct.textContent = stayGames > 0
       ? (stayWins / stayGames * 100).toFixed(1) + '%' : '\u2014';
   }
 
-  document.getElementById('mh-switch').addEventListener('click', () => {
+  document.getElementById('mh-switch')!.addEventListener('click', () => {
     if (phase === 'decide') resolve(true);
   });
-  document.getElementById('mh-stay').addEventListener('click', () => {
+  document.getElementById('mh-stay')!.addEventListener('click', () => {
     if (phase === 'decide') resolve(false);
   });
   newBtn.addEventListener('click', newGame);
 
-  // Door count change
   if (doorCountInput) {
     doorCountInput.addEventListener('change', () => {
       const v = parseInt(doorCountInput.value);
@@ -312,7 +279,6 @@
     });
   }
 
-  // Trial count change
   if (trialCountInput) {
     trialCountInput.addEventListener('change', () => {
       const v = parseInt(trialCountInput.value);
@@ -324,32 +290,32 @@
   updateFormula();
   newGame();
 
-  // ── Monte Carlo simulation ──
-
-  const canvas = document.getElementById('mh-canvas');
+  // MC simulation
+  const canvas = document.getElementById('mh-canvas') as HTMLCanvasElement;
   if (!canvas) return;
-  const ctx = canvas.getContext('2d');
+  const ctx = canvas.getContext('2d')!;
   const CW = canvas.width, CH = canvas.height;
 
-  let simData = [];
+  interface SimPoint { trial: number; switchRate: number; stayRate: number; }
+  let simData: SimPoint[] = [];
   let totalTrials = 0;
   let totalSwitchWins = 0;
-  let running = false;
+  let simRunning = false;
 
   const simEls = {
-    trials: document.getElementById('mh-trials'),
-    sw: document.getElementById('mh-sim-sw'),
-    st: document.getElementById('mh-sim-st'),
+    trials: document.getElementById('mh-trials')!,
+    sw: document.getElementById('mh-sim-sw')!,
+    st: document.getElementById('mh-sim-st')!,
   };
 
   function resetSim() {
-    if (running) return;
+    if (simRunning) return;
     totalTrials = 0;
     totalSwitchWins = 0;
     simData = [];
   }
 
-  function runBatch(n) {
+  function runBatch(n: number) {
     const nd = numDoors;
     for (let i = 0; i < n; i++) {
       const car = Math.floor(Math.random() * nd);
@@ -367,9 +333,7 @@
     });
   }
 
-  function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
-
-  function fracLabel(num, den) {
+  function fracLabel(num: number, den: number): string {
     const g = gcd(num, den);
     return (num / g) + '/' + (den / g);
   }
@@ -403,21 +367,14 @@
       ctx.stroke();
     }
 
-    // Reference lines at 1/N and (N-1)/N
     const stayTheory = 1 / numDoors;
     const switchTheory = (numDoors - 1) / numDoors;
     ctx.setLineDash([4, 4]);
     ctx.strokeStyle = '#333';
     const yStay = pad.top + ph - stayTheory * ph;
     const ySwitch = pad.top + ph - switchTheory * ph;
-    ctx.beginPath();
-    ctx.moveTo(pad.left, yStay);
-    ctx.lineTo(pad.left + pw, yStay);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(pad.left, ySwitch);
-    ctx.lineTo(pad.left + pw, ySwitch);
-    ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(pad.left, yStay); ctx.lineTo(pad.left + pw, yStay); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(pad.left, ySwitch); ctx.lineTo(pad.left + pw, ySwitch); ctx.stroke();
     ctx.setLineDash([]);
 
     ctx.fillStyle = '#444';
@@ -485,24 +442,6 @@
     ctx.fillText('stay', lx + 18, ly + 17);
   }
 
-  function niceStep(max, targetTicks) {
-    const rough = max / targetTicks;
-    const mag = Math.pow(10, Math.floor(Math.log10(rough)));
-    const norm = rough / mag;
-    let step;
-    if (norm < 1.5) step = 1;
-    else if (norm < 3.5) step = 2;
-    else if (norm < 7.5) step = 5;
-    else step = 10;
-    return step * mag;
-  }
-
-  function shortNum(n) {
-    if (n >= 1000000) return (n / 1000000).toFixed(0) + 'M';
-    if (n >= 1000) return (n / 1000).toFixed(0) + 'k';
-    return String(n);
-  }
-
   function updateSimStats() {
     simEls.trials.textContent = totalTrials.toLocaleString();
     if (totalTrials > 0) {
@@ -514,9 +453,9 @@
     }
   }
 
-  document.getElementById('mh-run').addEventListener('click', () => {
-    if (running) return;
-    running = true;
+  document.getElementById('mh-run')!.addEventListener('click', () => {
+    if (simRunning) return;
+    simRunning = true;
 
     const target = totalTrials + numTrials;
     const batchSize = Math.max(50, Math.floor(numTrials / 50));
@@ -533,14 +472,14 @@
         samplePoint();
         drawChart();
         updateSimStats();
-        running = false;
+        simRunning = false;
       }
     }
     requestAnimationFrame(step);
   });
 
-  document.getElementById('mh-reset').addEventListener('click', () => {
-    if (running) return;
+  document.getElementById('mh-reset')!.addEventListener('click', () => {
+    if (simRunning) return;
     resetSim();
     drawChart();
     updateSimStats();
@@ -548,4 +487,6 @@
 
   drawChart();
   updateSimStats();
-})();
+}
+
+main();
