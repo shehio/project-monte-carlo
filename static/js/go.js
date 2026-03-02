@@ -294,9 +294,6 @@
     iterationsInput = document.getElementById('go-iterations');
     depthInput = document.getElementById('go-depth');
 
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
-
     canvas.addEventListener('click', onCanvasClick);
     canvas.addEventListener('mousemove', onCanvasMove);
     canvas.addEventListener('mouseleave', function () { hoverPos = -1; draw(); });
@@ -305,11 +302,18 @@
     resignBtn.addEventListener('click', onResign);
 
     newGame();
+    // Defer resize to ensure layout is computed
+    requestAnimationFrame(function () {
+      resizeCanvas();
+      window.addEventListener('resize', resizeCanvas);
+    });
   }
 
   function resizeCanvas() {
     var container = canvas.parentElement;
-    var w = Math.min(container.clientWidth, 560);
+    var w = container.clientWidth;
+    if (w < 100) w = 560;
+    w = Math.min(w, 560);
     canvas.width = w;
     canvas.height = w;
     cellSize = (w - 2 * PADDING) / (SIZE - 1);
@@ -344,7 +348,7 @@
   }
 
   function draw() {
-    if (!ctx) return;
+    if (!ctx || !gameState) return;
     var w = canvas.width;
 
     // Background
