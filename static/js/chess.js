@@ -557,18 +557,24 @@
   var promotionOverlay, promotionCallback = null;
   var historyEl;
   var flipped = false;
-
-  // Move history: array of {moveNum, white: san, black: san}
   var moveHistory = [];
+  var moveStack = [];
 
-  // Use FILLED glyphs (U+265A-265F) for all pieces — outline glyphs are invisible on dark bg
-  var PIECE_CHAR = {};
-  PIECE_CHAR[KING] = '\u265A';
-  PIECE_CHAR[QUEEN] = '\u265B';
-  PIECE_CHAR[ROOK] = '\u265C';
-  PIECE_CHAR[BISHOP] = '\u265D';
-  PIECE_CHAR[KNIGHT] = '\u265E';
-  PIECE_CHAR[PAWN] = '\u265F';
+  // Piece letters for rendering — avoids Unicode emoji issues on macOS
+  var PIECE_LETTER = {};
+  PIECE_LETTER[KING] = 'K';
+  PIECE_LETTER[QUEEN] = 'Q';
+  PIECE_LETTER[ROOK] = 'R';
+  PIECE_LETTER[BISHOP] = 'B';
+  PIECE_LETTER[KNIGHT] = 'N';
+  PIECE_LETTER[PAWN] = 'P';
+
+  // Board colors
+  var LIGHT_SQ = '#3d3d3d';
+  var DARK_SQ = '#262626';
+  var LIGHT_SQ_HL = '#3a4a3a';
+  var DARK_SQ_HL = '#2a3a2a';
+  var SELECT_SQ = '#3a3a2a';
 
   function init() {
     canvas = document.getElementById('chess-board');
@@ -583,10 +589,7 @@
     promotionOverlay = document.getElementById('promotion-overlay');
     historyEl = document.getElementById('move-history');
 
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
     canvas.addEventListener('click', onCanvasClick);
-
     newGameBtn.addEventListener('click', newGame);
     if (undoBtn) undoBtn.addEventListener('click', onUndo);
 
@@ -599,11 +602,18 @@
     }
 
     newGame();
+    // Defer first resize to ensure layout is computed
+    requestAnimationFrame(function () {
+      resizeCanvas();
+      window.addEventListener('resize', resizeCanvas);
+    });
   }
 
   function resizeCanvas() {
     var container = canvas.parentElement;
-    var w = Math.min(container.clientWidth, 560);
+    var w = container.clientWidth;
+    if (w < 100) w = 560; // fallback if layout not ready
+    w = Math.min(w, 560);
     canvas.width = w;
     canvas.height = w;
     BOARD_SIZE = w;
@@ -629,21 +639,13 @@
     draw();
   }
 
-  var moveStack = [];
-
   function onUndo() {
     if (aiThinking || moveStack.length < 2) return;
     var prevState = moveStack[moveStack.length - 2];
     moveStack.splice(moveStack.length - 2, 2);
     gameState = prevState.clone();
-    // Remove last full move (or last half-move pair)
     if (moveHistory.length > 0) {
-      var last = moveHistory[moveHistory.length - 1];
-      if (last.black) {
-        moveHistory.pop();
-      } else {
-        moveHistory.pop();
-      }
+      moveHistory.pop();
     }
     gameOver = false;
     selectedSquare = -1;
@@ -664,9 +666,7 @@
 
   function squareToPixel(sq) {
     var dsq = displaySquare(sq);
-    var r = dsq >> 3;
-    var c = dsq & 7;
-    return { x: c * SQUARE_SIZE, y: r * SQUARE_SIZE };
+    return { x: (dsq & 7) * SQUARE_SIZE, y: (dsq >> 3) * SQUARE_SIZE };
   }
 
   function pixelToSquare(x, y) {
@@ -678,40 +678,72 @@
     return sq;
   }
 
+  function sqColor(r, c, highlighted) {
+    var isLight = (r + c) % 2 === 0;
+    if (highlighted) return isLight ? LIGHT_SQ_HL : DARK_SQ_HL;
+    return isLight ? LIGHT_SQ : DARK_SQ;
+  }
+
   function draw() {
-    if (!ctx) return;
+    if (!ctx || !gameState) return;
+
+    var w = canvas.width;
+    // Clear entire canvas
+    ctx.clearRect(0, 0, w, w);
 
     for (var sq = 0; sq < 64; sq++) {
       var pos = squareToPixel(sq);
       var r = sq >> 3, c = sq & 7;
-      var isLight = (r + c) % 2 === 0;
+      var hl = sq === lastMoveFrom || sq === lastMoveTo;
 
-      // Square color
-      if (sq === lastMoveFrom || sq === lastMoveTo) {
-        ctx.fillStyle = isLight ? '#2a3a2a' : '#1a2a1a';
-      } else if (sq === selectedSquare) {
-        ctx.fillStyle = '#2a2a1a';
+      // Square
+      if (sq === selectedSquare) {
+        ctx.fillStyle = SELECT_SQ;
       } else {
-        ctx.fillStyle = isLight ? '#2a2a2a' : '#1a1a1a';
+        ctx.fillStyle = sqColor(r, c, hl);
       }
       ctx.fillRect(pos.x, pos.y, SQUARE_SIZE, SQUARE_SIZE);
 
-      // Legal move dots
+      // Legal move indicators
       if (selectedSquare >= 0) {
         for (var li = 0; li < legalMovesForSelected.length; li++) {
           if (legalMovesForSelected[li].to === sq) {
-            ctx.fillStyle = 'rgba(0, 212, 170, 0.3)';
+            var cx = pos.x + SQUARE_SIZE / 2;
+            var cy = pos.y + SQUARE_SIZE / 2;
             if (gameState.board[sq] !== EMPTY) {
+              // Capture: corner triangles
+              ctx.fillStyle = 'rgba(0, 212, 170, 0.4)';
+              var s = SQUARE_SIZE;
+              var t = s * 0.2;
+              // top-left triangle
               ctx.beginPath();
-              ctx.arc(pos.x + SQUARE_SIZE / 2, pos.y + SQUARE_SIZE / 2, SQUARE_SIZE * 0.42, 0, Math.PI * 2);
+              ctx.moveTo(pos.x, pos.y);
+              ctx.lineTo(pos.x + t, pos.y);
+              ctx.lineTo(pos.x, pos.y + t);
               ctx.fill();
-              ctx.fillStyle = isLight ? '#2a2a2a' : '#1a1a1a';
+              // top-right
               ctx.beginPath();
-              ctx.arc(pos.x + SQUARE_SIZE / 2, pos.y + SQUARE_SIZE / 2, SQUARE_SIZE * 0.35, 0, Math.PI * 2);
+              ctx.moveTo(pos.x + s, pos.y);
+              ctx.lineTo(pos.x + s - t, pos.y);
+              ctx.lineTo(pos.x + s, pos.y + t);
+              ctx.fill();
+              // bottom-left
+              ctx.beginPath();
+              ctx.moveTo(pos.x, pos.y + s);
+              ctx.lineTo(pos.x + t, pos.y + s);
+              ctx.lineTo(pos.x, pos.y + s - t);
+              ctx.fill();
+              // bottom-right
+              ctx.beginPath();
+              ctx.moveTo(pos.x + s, pos.y + s);
+              ctx.lineTo(pos.x + s - t, pos.y + s);
+              ctx.lineTo(pos.x + s, pos.y + s - t);
               ctx.fill();
             } else {
+              // Move: small dot
+              ctx.fillStyle = 'rgba(0, 212, 170, 0.35)';
               ctx.beginPath();
-              ctx.arc(pos.x + SQUARE_SIZE / 2, pos.y + SQUARE_SIZE / 2, SQUARE_SIZE * 0.15, 0, Math.PI * 2);
+              ctx.arc(cx, cy, SQUARE_SIZE * 0.15, 0, Math.PI * 2);
               ctx.fill();
             }
             break;
@@ -719,46 +751,50 @@
         }
       }
 
-      // Piece — use filled glyphs for both sides, distinguish by color + stroke
+      // Piece
       var piece = gameState.board[sq];
       if (piece !== EMPTY) {
         var type = Math.abs(piece);
-        var isWhitePiece = piece > 0;
-        var cx = pos.x + SQUARE_SIZE / 2;
-        var cy = pos.y + SQUARE_SIZE / 2 + 2;
-        ctx.font = (SQUARE_SIZE * 0.75) + 'px serif';
+        var isWhite = piece > 0;
+        var pcx = pos.x + SQUARE_SIZE / 2;
+        var pcy = pos.y + SQUARE_SIZE / 2;
+        var radius = SQUARE_SIZE * 0.38;
+
+        // Draw circle base
+        ctx.beginPath();
+        ctx.arc(pcx, pcy, radius, 0, Math.PI * 2);
+        if (isWhite) {
+          ctx.fillStyle = '#ddd';
+          ctx.fill();
+          ctx.strokeStyle = '#999';
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        } else {
+          ctx.fillStyle = '#444';
+          ctx.fill();
+          ctx.strokeStyle = '#666';
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
+
+        // Draw letter
+        ctx.font = 'bold ' + (SQUARE_SIZE * 0.36) + 'px JetBrains Mono, monospace';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-
-        if (isWhitePiece) {
-          // White pieces: light fill with dark outline for contrast
-          ctx.strokeStyle = '#111';
-          ctx.lineWidth = SQUARE_SIZE * 0.04;
-          ctx.lineJoin = 'round';
-          ctx.strokeText(PIECE_CHAR[type], cx, cy);
-          ctx.fillStyle = '#f0f0f0';
-          ctx.fillText(PIECE_CHAR[type], cx, cy);
-        } else {
-          // Black pieces: dark fill with subtle lighter outline
-          ctx.strokeStyle = '#666';
-          ctx.lineWidth = SQUARE_SIZE * 0.03;
-          ctx.lineJoin = 'round';
-          ctx.strokeText(PIECE_CHAR[type], cx, cy);
-          ctx.fillStyle = '#222';
-          ctx.fillText(PIECE_CHAR[type], cx, cy);
-        }
+        ctx.fillStyle = isWhite ? '#1a1a1a' : '#ccc';
+        ctx.fillText(PIECE_LETTER[type], pcx, pcy + 1);
       }
     }
 
     // Coordinate labels
-    ctx.font = (SQUARE_SIZE * 0.18) + 'px JetBrains Mono, monospace';
+    ctx.font = (SQUARE_SIZE * 0.17) + 'px JetBrains Mono, monospace';
     ctx.textAlign = 'left';
     ctx.textBaseline = 'bottom';
     for (var fi = 0; fi < 8; fi++) {
       var fSq = flipped ? 63 - (56 + fi) : 56 + fi;
       var fPos = squareToPixel(fSq);
       var fR = fSq >> 3, fC = fSq & 7;
-      ctx.fillStyle = (fR + fC) % 2 === 0 ? '#555' : '#444';
+      ctx.fillStyle = (fR + fC) % 2 === 0 ? '#666' : '#555';
       ctx.fillText(FILES[fC], fPos.x + 2, fPos.y + SQUARE_SIZE - 2);
     }
     ctx.textAlign = 'right';
@@ -768,7 +804,7 @@
       var rPos = squareToPixel(rSq);
       var rank = 8 - (rSq >> 3);
       var rR2 = rSq >> 3, rC2 = rSq & 7;
-      ctx.fillStyle = (rR2 + rC2) % 2 === 0 ? '#555' : '#444';
+      ctx.fillStyle = (rR2 + rC2) % 2 === 0 ? '#666' : '#555';
       ctx.fillText(String(rank), rPos.x + SQUARE_SIZE - 2, rPos.y + 2);
     }
   }
