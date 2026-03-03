@@ -46,3 +46,16 @@ js: ["mcts.js", "chess.js"]
 </div>
 
 <div id="mcts-stats" class="mcts-stats"></div>
+
+<div id="mcts-tree" class="mcts-tree"></div>
+
+<div class="explanation" style="margin-top: 2rem;">
+  <h3 style="color: var(--accent); font-size: 0.85rem; font-weight: 500; letter-spacing: 1px; margin-bottom: 0.5rem;">how the search tree works</h3>
+  <p>Each move the AI considers becomes a <strong>node</strong> in a tree. MCTS repeats four steps thousands of times:</p>
+  <p><strong>1. Selection</strong> — walk down the tree picking the most promising branch using UCB1, which balances exploitation (high win rate) and exploration (low visit count).</p>
+  <p class="formula">UCB1 = win_rate + c · √(ln(parent_visits) / visits)</p>
+  <p><strong>2. Expansion</strong> — when a node has untried moves, add one as a new child.</p>
+  <p><strong>3. Simulation</strong> — play out a random game from the new node (biased toward captures), then evaluate the position with piece-square tables if the game isn't over.</p>
+  <p><strong>4. Backpropagation</strong> — send the result back up to the root, incrementing visit counts and win tallies at each node along the path.</p>
+  <p>The tree above shows the top branches after the AI's search. The most-visited branch becomes the chosen move — more visits means more confidence.</p>
+</div>

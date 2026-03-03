@@ -29,3 +29,16 @@ js: ["mcts.js", "go.js"]
 </div>
 
 <div id="mcts-stats" class="mcts-stats"></div>
+
+<div id="mcts-tree" class="mcts-tree"></div>
+
+<div class="explanation" style="margin-top: 2rem;">
+  <h3 style="color: var(--accent); font-size: 0.85rem; font-weight: 500; letter-spacing: 1px; margin-bottom: 0.5rem;">how the search tree works</h3>
+  <p>MCTS builds a game tree incrementally. Each iteration follows four phases:</p>
+  <p><strong>1. Selection</strong> — descend the tree, choosing the child with the highest UCB1 score at each level. UCB1 balances win rate (exploitation) with visit count (exploration).</p>
+  <p class="formula">UCB1 = w̄ + c · √(ln N / n)</p>
+  <p><strong>2. Expansion</strong> — at a node with untried moves, add one as a new leaf.</p>
+  <p><strong>3. Simulation</strong> — play random moves from the new leaf until the game ends. In Go, random rollouts naturally carry meaningful signal about territory.</p>
+  <p><strong>4. Backpropagation</strong> — propagate the win/loss result back up to the root, updating each ancestor's statistics.</p>
+  <p>The tree above shows the top branches after the AI's search. More visits = more confidence in that line of play.</p>
+</div>
