@@ -1,13 +1,16 @@
 ---
 title: "secretary problem"
 subtitle: "when should you stop looking?"
-js: "secretary-problem.js"
+js: "secretary-problem.ts"
 ---
 
 <div class="explanation">
   <p>You're hiring. <em>N</em> candidates arrive in random order. After each interview, you must hire or pass — no callbacks. The optimal strategy: <strong>reject the first 37%</strong>, then hire the next candidate who's better than everyone you've seen.</p>
   <p class="formula">optimal threshold = N/e ≈ 37% &emsp; P(best) ≈ 1/e ≈ 36.8%</p>
   <p>This is the <strong>optimal stopping problem</strong>. The 1/e rule maximizes your chance of picking the single best candidate. Play the game below, then run the simulation to see the peak at 37%.</p>
+  <p class="formula">references</p>
+  <p>Ferguson. "Who solved the secretary problem?" <em>Statistical Science</em>, 1989.</p>
+  <p>Bearden. "A new secretary problem with rank-based selection." <em>Journal of Mathematical Psychology</em>, 2006.</p>
 </div>
 
 <div class="data-indicator live"><span class="dot"></span> interactive</div>

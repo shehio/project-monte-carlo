@@ -1,13 +1,16 @@
 ---
 title: "roulette"
 subtitle: "does the wheel have a memory?"
-js: "roulette.js"
+js: "roulette.ts"
 ---
 
 <div class="explanation">
   <p>The <strong>gambler's fallacy</strong> is the belief that past random outcomes affect future ones. After five reds in a row, many players bet black — convinced it's "due." But the wheel has no memory.</p>
   <p class="formula">P(red | any streak) = 18/37 ≈ 48.6%</p>
   <p>Each spin is independent. No pattern of past results changes the odds of the next spin. Spin the wheel below, then run the simulation to watch the fallacy shatter against the data.</p>
+  <p class="formula">references</p>
+  <p>Ethier. "The Doctrine of Chances." <em>Springer</em>, 2010.</p>
+  <p>Kaivanto. "The effect of decayed expectations on hot hand beliefs." <em>Cognition</em>, 2023.</p>
 </div>
 
 <div class="data-indicator live"><span class="dot"></span> interactive</div>
