@@ -1,12 +1,20 @@
-(() => {
+export {};
+
+function main() {
   'use strict';
 
-  const PAYOFF = { CC: [3, 3], CD: [0, 5], DC: [5, 0], DD: [1, 1] };
+  type Move = 'C' | 'D';
+  const PAYOFF: Record<string, [number, number]> = { CC: [3, 3], CD: [0, 5], DC: [5, 0], DD: [1, 1] };
 
-  const STRATEGIES = {
+  interface Strategy {
+    name: string;
+    fn: (my: Move[], their: Move[]) => Move;
+  }
+
+  const STRATEGIES: Record<string, Strategy> = {
     'tit-for-tat': {
       name: 'tit for tat',
-      fn: (my, their) => their.length === 0 ? 'C' : their[their.length - 1],
+      fn: (_my, their) => their.length === 0 ? 'C' : their[their.length - 1],
     },
     'always-cooperate': {
       name: 'always cooperate',
@@ -18,7 +26,7 @@
     },
     'grudger': {
       name: 'grudger',
-      fn: (my, their) => their.includes('D') ? 'D' : 'C',
+      fn: (_my, their) => their.includes('D') ? 'D' : 'C',
     },
     'random': {
       name: 'random',
@@ -34,35 +42,42 @@
     },
     'tit-for-two-tats': {
       name: 'tit for two tats',
-      fn: (my, their) => {
+      fn: (_my, their) => {
         if (their.length < 2) return 'C';
         return (their[their.length - 1] === 'D' && their[their.length - 2] === 'D') ? 'D' : 'C';
       },
     },
   };
 
-  const strategiesEl = document.getElementById('pd-strategies');
-  const roundsInput = document.getElementById('pd-rounds');
-  const noiseInput = document.getElementById('pd-noise');
-  const canvas = document.getElementById('pd-canvas');
-  const matchupsEl = document.getElementById('pd-matchups');
+  const strategiesEl = document.getElementById('pd-strategies')!;
+  const roundsInput = document.getElementById('pd-rounds') as HTMLInputElement | null;
+  const noiseInput = document.getElementById('pd-noise') as HTMLInputElement | null;
+  const canvas = document.getElementById('pd-canvas') as HTMLCanvasElement;
+  const matchupsEl = document.getElementById('pd-matchups')!;
   if (!canvas) return;
-  const ctx = canvas.getContext('2d');
+  const ctx = canvas.getContext('2d')!;
   const CW = canvas.width, CH = canvas.height;
 
-  let results = null;
-
-  function getSelected() {
-    return Array.from(strategiesEl.querySelectorAll('input:checked')).map(cb => cb.value);
+  interface TournamentResult {
+    scores: Record<string, number>;
+    matchups: Record<string, Record<string, number>>;
+    sorted: string[];
+    rounds: number;
   }
 
-  function applyNoise(move, rate) {
+  let results: TournamentResult | null = null;
+
+  function getSelected(): string[] {
+    return Array.from(strategiesEl.querySelectorAll('input:checked')).map(cb => (cb as HTMLInputElement).value);
+  }
+
+  function applyNoise(move: Move, rate: number): Move {
     return Math.random() < rate ? (move === 'C' ? 'D' : 'C') : move;
   }
 
-  function playMatch(s1Key, s2Key, rounds, noise) {
+  function playMatch(s1Key: string, s2Key: string, rounds: number, noise: number) {
     const s1 = STRATEGIES[s1Key], s2 = STRATEGIES[s2Key];
-    const h1 = [], h2 = [];
+    const h1: Move[] = [], h2: Move[] = [];
     let score1 = 0, score2 = 0;
 
     for (let r = 0; r < rounds; r++) {
@@ -76,14 +91,14 @@
     return { score1, score2 };
   }
 
-  function runTournament() {
+  function runTournament(): TournamentResult | null {
     const selected = getSelected();
     if (selected.length < 2) return null;
-    const rounds = parseInt(roundsInput?.value) || 200;
-    const noise = (parseInt(noiseInput?.value) || 0) / 100;
+    const rounds = parseInt(roundsInput?.value ?? '200') || 200;
+    const noise = (parseInt(noiseInput?.value ?? '0') || 0) / 100;
 
-    const scores = {};
-    const matchups = {};
+    const scores: Record<string, number> = {};
+    const matchups: Record<string, Record<string, number>> = {};
     selected.forEach(s => { scores[s] = 0; matchups[s] = {}; });
 
     for (let i = 0; i < selected.length; i++) {
@@ -169,11 +184,13 @@
     matchupsEl.innerHTML = html;
   }
 
-  document.getElementById('pd-run').addEventListener('click', () => {
+  document.getElementById('pd-run')!.addEventListener('click', () => {
     results = runTournament();
     drawResults();
     renderMatchups();
   });
 
   drawResults();
-})();
+}
+
+main();
