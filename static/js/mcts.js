@@ -131,11 +131,37 @@ window.MCTS = (function () {
     topMoves.sort(function (a, b) { return b.visits - a.visits; });
 
     var bestChild = root.bestChild(0); // Most visited = best move (exploitation only)
+
+    // Build tree snapshot for visualization (top 2 levels)
+    var tree = { visits: root.visits, children: [] };
+    for (var ti = 0; ti < root.children.length; ti++) {
+      var tc = root.children[ti];
+      var tnode = {
+        move: tc.move,
+        visits: tc.visits,
+        winRate: tc.visits > 0 ? (tc.wins / tc.visits * 100) : 0,
+        children: []
+      };
+      // Add grandchildren (top by visits)
+      var grandkids = tc.children.slice().sort(function (a, b) { return b.visits - a.visits; });
+      for (var gi = 0; gi < Math.min(grandkids.length, 3); gi++) {
+        var gc = grandkids[gi];
+        tnode.children.push({
+          move: gc.move,
+          visits: gc.visits,
+          winRate: gc.visits > 0 ? (gc.wins / gc.visits * 100) : 0
+        });
+      }
+      tree.children.push(tnode);
+    }
+    tree.children.sort(function (a, b) { return b.visits - a.visits; });
+
     return {
       bestMove: bestChild ? bestChild.move : null,
       stats: {
         iterations: iterations,
-        topMoves: topMoves.slice(0, 8)
+        topMoves: topMoves.slice(0, 8),
+        tree: tree
       }
     };
   }

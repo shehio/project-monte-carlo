@@ -582,6 +582,68 @@
         '</div>';
     }
     statsEl.innerHTML = html;
+
+    // Render tree visualization
+    if (stats.tree) renderTree(stats.tree, colLabels);
+  }
+
+  function goMoveLabel(move, colLabels) {
+    if (move === -1) return 'pass';
+    var rc = gameState.rc(move);
+    return colLabels[rc[1]] + (SIZE - rc[0]);
+  }
+
+  function renderTree(tree, colLabels) {
+    var treeEl = document.getElementById('mcts-tree');
+    if (!treeEl) return;
+
+    var children = tree.children.slice(0, 5);
+    if (children.length === 0) {
+      treeEl.innerHTML = '';
+      return;
+    }
+
+    var maxVisits = children[0].visits || 1;
+
+    var html = '<div class="tree-header">search tree · ' + tree.visits.toLocaleString() + ' total visits</div>';
+    html += '<div class="tree-root">root</div>';
+    html += '<div class="tree-branches">';
+
+    for (var i = 0; i < children.length; i++) {
+      var c = children[i];
+      var label = goMoveLabel(c.move, colLabels);
+      var pct = (c.visits / maxVisits * 100).toFixed(0);
+      var wr = c.winRate.toFixed(1);
+      var isBest = i === 0;
+
+      html += '<div class="tree-branch' + (isBest ? ' best' : '') + '">';
+      html += '<div class="tree-connector"><span class="tree-line"></span></div>';
+      html += '<div class="tree-node">';
+      html += '<span class="tree-node-move">' + label + '</span>';
+      html += '<span class="tree-node-bar"><span style="width:' + pct + '%"></span></span>';
+      html += '<span class="tree-node-info">' + c.visits + ' · ' + wr + '%</span>';
+      html += '</div>';
+
+      if (c.children && c.children.length > 0) {
+        html += '<div class="tree-children">';
+        for (var j = 0; j < c.children.length; j++) {
+          var gc = c.children[j];
+          var gcLabel = goMoveLabel(gc.move, colLabels);
+          var gcWr = gc.winRate.toFixed(1);
+          html += '<div class="tree-leaf">';
+          html += '<span class="tree-leaf-line"></span>';
+          html += '<span class="tree-leaf-move">' + gcLabel + '</span>';
+          html += '<span class="tree-leaf-info">' + gc.visits + ' · ' + gcWr + '%</span>';
+          html += '</div>';
+        }
+        html += '</div>';
+      }
+
+      html += '</div>';
+    }
+
+    html += '</div>';
+    treeEl.innerHTML = html;
   }
 
   // String.prototype.padEnd polyfill

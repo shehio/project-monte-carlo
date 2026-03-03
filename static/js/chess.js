@@ -560,14 +560,170 @@
   var moveHistory = [];
   var moveStack = [];
 
-  // Piece letters for rendering — avoids Unicode emoji issues on macOS
-  var PIECE_LETTER = {};
-  PIECE_LETTER[KING] = 'K';
-  PIECE_LETTER[QUEEN] = 'Q';
-  PIECE_LETTER[ROOK] = 'R';
-  PIECE_LETTER[BISHOP] = 'B';
-  PIECE_LETTER[KNIGHT] = 'N';
-  PIECE_LETTER[PAWN] = 'P';
+  // ── Piece SVG path drawing ──
+  // Each function draws a piece centered at (0,0) in a 1×1 unit square, scaled to fit.
+  // Call with ctx already translated/scaled to piece center.
+
+  function drawPawn(ctx, s) {
+    var r = s * 0.44;
+    ctx.beginPath();
+    // Base
+    ctx.moveTo(-r * 0.65, r * 0.85);
+    ctx.lineTo(r * 0.65, r * 0.85);
+    ctx.lineTo(r * 0.55, r * 0.65);
+    ctx.lineTo(r * 0.35, r * 0.45);
+    // Neck
+    ctx.lineTo(r * 0.2, r * 0.15);
+    // Head (arc)
+    ctx.arc(0, -r * 0.15, r * 0.28, Math.PI * 0.3, -Math.PI * 1.3, false);
+    // Left side
+    ctx.lineTo(-r * 0.2, r * 0.15);
+    ctx.lineTo(-r * 0.35, r * 0.45);
+    ctx.lineTo(-r * 0.55, r * 0.65);
+    ctx.closePath();
+  }
+
+  function drawRook(ctx, s) {
+    var r = s * 0.44;
+    ctx.beginPath();
+    // Base
+    ctx.moveTo(-r * 0.7, r * 0.85);
+    ctx.lineTo(r * 0.7, r * 0.85);
+    ctx.lineTo(r * 0.6, r * 0.65);
+    // Right wall
+    ctx.lineTo(r * 0.45, r * 0.65);
+    ctx.lineTo(r * 0.45, -r * 0.35);
+    // Crenellations
+    ctx.lineTo(r * 0.55, -r * 0.35);
+    ctx.lineTo(r * 0.55, -r * 0.7);
+    ctx.lineTo(r * 0.3, -r * 0.7);
+    ctx.lineTo(r * 0.3, -r * 0.45);
+    ctx.lineTo(r * 0.1, -r * 0.45);
+    ctx.lineTo(r * 0.1, -r * 0.7);
+    ctx.lineTo(-r * 0.1, -r * 0.7);
+    ctx.lineTo(-r * 0.1, -r * 0.45);
+    ctx.lineTo(-r * 0.3, -r * 0.45);
+    ctx.lineTo(-r * 0.3, -r * 0.7);
+    ctx.lineTo(-r * 0.55, -r * 0.7);
+    ctx.lineTo(-r * 0.55, -r * 0.35);
+    // Left wall
+    ctx.lineTo(-r * 0.45, -r * 0.35);
+    ctx.lineTo(-r * 0.45, r * 0.65);
+    ctx.lineTo(-r * 0.6, r * 0.65);
+    ctx.closePath();
+  }
+
+  function drawKnight(ctx, s) {
+    var r = s * 0.44;
+    ctx.beginPath();
+    // Base
+    ctx.moveTo(-r * 0.6, r * 0.85);
+    ctx.lineTo(r * 0.55, r * 0.85);
+    ctx.lineTo(r * 0.45, r * 0.6);
+    // Body right side
+    ctx.lineTo(r * 0.35, r * 0.3);
+    // Nose / head
+    ctx.lineTo(r * 0.55, -r * 0.1);
+    ctx.lineTo(r * 0.5, -r * 0.3);
+    ctx.lineTo(r * 0.25, -r * 0.15);
+    // Ear
+    ctx.lineTo(r * 0.15, -r * 0.65);
+    ctx.lineTo(r * 0.0, -r * 0.85);
+    ctx.lineTo(-r * 0.15, -r * 0.65);
+    // Mane / back
+    ctx.lineTo(-r * 0.25, -r * 0.4);
+    ctx.lineTo(-r * 0.35, -r * 0.15);
+    ctx.lineTo(-r * 0.4, r * 0.2);
+    ctx.lineTo(-r * 0.5, r * 0.6);
+    ctx.closePath();
+  }
+
+  function drawBishop(ctx, s) {
+    var r = s * 0.44;
+    ctx.beginPath();
+    // Base
+    ctx.moveTo(-r * 0.6, r * 0.85);
+    ctx.lineTo(r * 0.6, r * 0.85);
+    ctx.lineTo(r * 0.45, r * 0.65);
+    // Right side taper
+    ctx.lineTo(r * 0.25, r * 0.4);
+    // Mitre curve (right)
+    ctx.quadraticCurveTo(r * 0.4, -r * 0.1, r * 0.25, -r * 0.5);
+    // Tip
+    ctx.lineTo(r * 0.08, -r * 0.7);
+    ctx.lineTo(0, -r * 0.9);
+    ctx.lineTo(-r * 0.08, -r * 0.7);
+    // Mitre curve (left)
+    ctx.lineTo(-r * 0.25, -r * 0.5);
+    ctx.quadraticCurveTo(-r * 0.4, -r * 0.1, -r * 0.25, r * 0.4);
+    ctx.lineTo(-r * 0.45, r * 0.65);
+    ctx.closePath();
+  }
+
+  function drawQueen(ctx, s) {
+    var r = s * 0.44;
+    ctx.beginPath();
+    // Base
+    ctx.moveTo(-r * 0.7, r * 0.85);
+    ctx.lineTo(r * 0.7, r * 0.85);
+    ctx.lineTo(r * 0.55, r * 0.6);
+    // Right crown slope
+    ctx.lineTo(r * 0.4, r * 0.15);
+    // Crown points
+    ctx.lineTo(r * 0.65, -r * 0.6);
+    ctx.lineTo(r * 0.35, -r * 0.2);
+    ctx.lineTo(r * 0.3, -r * 0.75);
+    ctx.lineTo(0, -r * 0.35);
+    ctx.lineTo(-r * 0.3, -r * 0.75);
+    ctx.lineTo(-r * 0.35, -r * 0.2);
+    ctx.lineTo(-r * 0.65, -r * 0.6);
+    // Left crown slope
+    ctx.lineTo(-r * 0.4, r * 0.15);
+    ctx.lineTo(-r * 0.55, r * 0.6);
+    ctx.closePath();
+  }
+
+  function drawKing(ctx, s) {
+    var r = s * 0.44;
+    ctx.beginPath();
+    // Base
+    ctx.moveTo(-r * 0.7, r * 0.85);
+    ctx.lineTo(r * 0.7, r * 0.85);
+    ctx.lineTo(r * 0.55, r * 0.6);
+    // Right side
+    ctx.lineTo(r * 0.45, r * 0.25);
+    ctx.lineTo(r * 0.55, r * 0.0);
+    ctx.lineTo(r * 0.45, -r * 0.2);
+    ctx.lineTo(r * 0.3, -r * 0.35);
+    // Cross arm right
+    ctx.lineTo(r * 0.25, -r * 0.45);
+    ctx.lineTo(r * 0.08, -r * 0.45);
+    // Cross top
+    ctx.lineTo(r * 0.08, -r * 0.65);
+    ctx.lineTo(r * 0.2, -r * 0.65);
+    ctx.lineTo(r * 0.2, -r * 0.78);
+    ctx.lineTo(-r * 0.2, -r * 0.78);
+    ctx.lineTo(-r * 0.2, -r * 0.65);
+    ctx.lineTo(-r * 0.08, -r * 0.65);
+    // Cross arm left
+    ctx.lineTo(-r * 0.08, -r * 0.45);
+    ctx.lineTo(-r * 0.25, -r * 0.45);
+    ctx.lineTo(-r * 0.3, -r * 0.35);
+    // Left side
+    ctx.lineTo(-r * 0.45, -r * 0.2);
+    ctx.lineTo(-r * 0.55, r * 0.0);
+    ctx.lineTo(-r * 0.45, r * 0.25);
+    ctx.lineTo(-r * 0.55, r * 0.6);
+    ctx.closePath();
+  }
+
+  var PIECE_DRAW = {};
+  PIECE_DRAW[PAWN] = drawPawn;
+  PIECE_DRAW[KNIGHT] = drawKnight;
+  PIECE_DRAW[BISHOP] = drawBishop;
+  PIECE_DRAW[ROOK] = drawRook;
+  PIECE_DRAW[QUEEN] = drawQueen;
+  PIECE_DRAW[KING] = drawKing;
 
   // Board colors
   var LIGHT_SQ = '#3d3d3d';
@@ -758,31 +914,28 @@
         var isWhite = piece > 0;
         var pcx = pos.x + SQUARE_SIZE / 2;
         var pcy = pos.y + SQUARE_SIZE / 2;
-        var radius = SQUARE_SIZE * 0.38;
+        var drawFn = PIECE_DRAW[type];
 
-        // Draw circle base
-        ctx.beginPath();
-        ctx.arc(pcx, pcy, radius, 0, Math.PI * 2);
-        if (isWhite) {
-          ctx.fillStyle = '#ddd';
-          ctx.fill();
-          ctx.strokeStyle = '#999';
-          ctx.lineWidth = 1;
-          ctx.stroke();
-        } else {
-          ctx.fillStyle = '#444';
-          ctx.fill();
-          ctx.strokeStyle = '#666';
-          ctx.lineWidth = 1;
-          ctx.stroke();
+        if (drawFn) {
+          ctx.save();
+          ctx.translate(pcx, pcy);
+          drawFn(ctx, SQUARE_SIZE);
+          // Fill + outline for contrast
+          if (isWhite) {
+            ctx.fillStyle = '#e8e0d4';
+            ctx.fill();
+            ctx.strokeStyle = '#222';
+            ctx.lineWidth = Math.max(1, SQUARE_SIZE * 0.025);
+            ctx.stroke();
+          } else {
+            ctx.fillStyle = '#2a2a2a';
+            ctx.fill();
+            ctx.strokeStyle = '#aaa';
+            ctx.lineWidth = Math.max(1, SQUARE_SIZE * 0.025);
+            ctx.stroke();
+          }
+          ctx.restore();
         }
-
-        // Draw letter
-        ctx.font = 'bold ' + (SQUARE_SIZE * 0.36) + 'px JetBrains Mono, monospace';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillStyle = isWhite ? '#1a1a1a' : '#ccc';
-        ctx.fillText(PIECE_LETTER[type], pcx, pcy + 1);
       }
     }
 
@@ -973,21 +1126,26 @@
     }
   }
 
+  function moveLabel(move) {
+    if (move.castle === 'K' || move.castle === 'k') return 'O-O';
+    if (move.castle === 'Q' || move.castle === 'q') return 'O-O-O';
+    var label = FILES[move.from & 7] + (8 - (move.from >> 3)) +
+                FILES[move.to & 7] + (8 - (move.to >> 3));
+    if (move.promo) {
+      var PROMO_LETTERS = {};
+      PROMO_LETTERS[QUEEN] = 'Q'; PROMO_LETTERS[ROOK] = 'R';
+      PROMO_LETTERS[BISHOP] = 'B'; PROMO_LETTERS[KNIGHT] = 'N';
+      label += (PROMO_LETTERS[Math.abs(move.promo)] || '');
+    }
+    return label;
+  }
+
   function updateStats(stats) {
     var html = '<div class="mcts-header">mcts search · ' + stats.iterations.toLocaleString() + ' iterations</div>';
     var maxVisits = stats.topMoves.length > 0 ? stats.topMoves[0].visits : 1;
     for (var i = 0; i < Math.min(stats.topMoves.length, 6); i++) {
       var m = stats.topMoves[i];
-      var label = '';
-      if (m.move.castle === 'K' || m.move.castle === 'k') label = 'O-O';
-      else if (m.move.castle === 'Q' || m.move.castle === 'q') label = 'O-O-O';
-      else {
-        label = FILES[m.move.from & 7] + (8 - (m.move.from >> 3)) +
-                FILES[m.move.to & 7] + (8 - (m.move.to >> 3));
-        if (m.move.promo) {
-          label += PIECE_LETTERS[Math.abs(m.move.promo)];
-        }
-      }
+      var label = moveLabel(m.move);
       var barWidth = Math.max(2, (m.visits / maxVisits) * 100);
       html += '<div class="mcts-move">' +
         '<span class="mcts-label">' + label + '</span>' +
@@ -997,6 +1155,63 @@
         '</div>';
     }
     statsEl.innerHTML = html;
+
+    // Render tree visualization
+    if (stats.tree) renderTree(stats.tree);
+  }
+
+  function renderTree(tree) {
+    var treeEl = document.getElementById('mcts-tree');
+    if (!treeEl) return;
+
+    var children = tree.children.slice(0, 5);
+    if (children.length === 0) {
+      treeEl.innerHTML = '';
+      return;
+    }
+
+    var maxVisits = children[0].visits || 1;
+
+    var html = '<div class="tree-header">search tree · ' + tree.visits.toLocaleString() + ' total visits</div>';
+    html += '<div class="tree-root">root</div>';
+    html += '<div class="tree-branches">';
+
+    for (var i = 0; i < children.length; i++) {
+      var c = children[i];
+      var label = moveLabel(c.move);
+      var pct = (c.visits / maxVisits * 100).toFixed(0);
+      var wr = c.winRate.toFixed(1);
+      var isBest = i === 0;
+
+      html += '<div class="tree-branch' + (isBest ? ' best' : '') + '">';
+      html += '<div class="tree-connector"><span class="tree-line"></span></div>';
+      html += '<div class="tree-node">';
+      html += '<span class="tree-node-move">' + label + '</span>';
+      html += '<span class="tree-node-bar"><span style="width:' + pct + '%"></span></span>';
+      html += '<span class="tree-node-info">' + c.visits + ' · ' + wr + '%</span>';
+      html += '</div>';
+
+      // Grandchildren
+      if (c.children && c.children.length > 0) {
+        html += '<div class="tree-children">';
+        for (var j = 0; j < c.children.length; j++) {
+          var gc = c.children[j];
+          var gcLabel = moveLabel(gc.move);
+          var gcWr = gc.winRate.toFixed(1);
+          html += '<div class="tree-leaf">';
+          html += '<span class="tree-leaf-line"></span>';
+          html += '<span class="tree-leaf-move">' + gcLabel + '</span>';
+          html += '<span class="tree-leaf-info">' + gc.visits + ' · ' + gcWr + '%</span>';
+          html += '</div>';
+        }
+        html += '</div>';
+      }
+
+      html += '</div>';
+    }
+
+    html += '</div>';
+    treeEl.innerHTML = html;
   }
 
   if (document.readyState === 'loading') {
