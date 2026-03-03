@@ -1,16 +1,16 @@
-(() => {
+import { shuffle } from './lib/math';
+
+function main() {
   'use strict';
 
-  // ── Interactive game ──
-
-  const numberEl = document.getElementById('sp-number');
-  const scoreEl = document.getElementById('sp-score');
-  const bestLabelEl = document.getElementById('sp-best-label');
-  const messageEl = document.getElementById('sp-message');
-  const nInput = document.getElementById('sp-n');
+  const numberEl = document.getElementById('sp-number')!;
+  const scoreEl = document.getElementById('sp-score')!;
+  const bestLabelEl = document.getElementById('sp-best-label')!;
+  const messageEl = document.getElementById('sp-message')!;
+  const nInput = document.getElementById('sp-n') as HTMLInputElement | null;
   if (!numberEl || !messageEl) return;
 
-  let candidates = [];
+  let candidates: number[] = [];
   let current = 0;
   let bestSeen = 0;
   let hired = -1;
@@ -19,20 +19,13 @@
   let wins = 0;
 
   const statEls = {
-    games: document.getElementById('sp-games'),
-    wins: document.getElementById('sp-wins'),
-    rate: document.getElementById('sp-rate'),
+    games: document.getElementById('sp-games')!,
+    wins: document.getElementById('sp-wins')!,
+    rate: document.getElementById('sp-rate')!,
   };
 
-  function shuffle(arr) {
-    for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      const tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
-    }
-  }
-
   function newGame() {
-    const n = parseInt(nInput?.value) || 20;
+    const n = parseInt(nInput?.value ?? '20') || 20;
     candidates = [];
     for (let i = 1; i <= n; i++) candidates.push(i);
     shuffle(candidates);
@@ -83,41 +76,41 @@
   }
 
   function updateGameStats() {
-    statEls.games.textContent = gamesPlayed;
-    statEls.wins.textContent = wins;
+    statEls.games.textContent = String(gamesPlayed);
+    statEls.wins.textContent = String(wins);
     statEls.rate.textContent = gamesPlayed > 0
       ? (wins / gamesPlayed * 100).toFixed(1) + '%' : '\u2014';
   }
 
-  document.getElementById('sp-hire').addEventListener('click', () => {
+  document.getElementById('sp-hire')!.addEventListener('click', () => {
     if (gameActive) { hired = current; endGame(); }
   });
-  document.getElementById('sp-pass').addEventListener('click', () => {
+  document.getElementById('sp-pass')!.addEventListener('click', () => {
     if (!gameActive) return;
     current++;
     if (current >= candidates.length) { hired = candidates.length - 1; endGame(); }
     else showCandidate();
   });
-  document.getElementById('sp-new').addEventListener('click', newGame);
+  document.getElementById('sp-new')!.addEventListener('click', newGame);
 
-  // ── MC Simulation ──
-
-  const canvas = document.getElementById('sp-canvas');
+  // MC Simulation
+  const canvas = document.getElementById('sp-canvas') as HTMLCanvasElement;
   if (!canvas) return;
-  const ctx = canvas.getContext('2d');
+  const ctx = canvas.getContext('2d')!;
   const CW = canvas.width, CH = canvas.height;
 
-  let simData = null;
-  let running = false;
+  interface SimResult { results: { threshold: number; successRate: number }[]; trialsPerThreshold: number; }
+  let simData: SimResult | null = null;
+  let simRunning = false;
 
   const simEls = {
-    trials: document.getElementById('sp-trials'),
-    peak: document.getElementById('sp-peak'),
-    peakRate: document.getElementById('sp-peak-rate'),
+    trials: document.getElementById('sp-trials')!,
+    peak: document.getElementById('sp-peak')!,
+    peakRate: document.getElementById('sp-peak-rate')!,
   };
 
-  function runSimulation(n, trialsPerThreshold) {
-    const results = [];
+  function runSimulation(n: number, trialsPerThreshold: number): SimResult {
+    const results: { threshold: number; successRate: number }[] = [];
     const steps = 50;
 
     for (let t = 0; t <= steps; t++) {
@@ -125,23 +118,19 @@
       let successes = 0;
 
       for (let trial = 0; trial < trialsPerThreshold; trial++) {
-        // Random candidate quality values
         const vals = new Float64Array(n);
         for (let i = 0; i < n; i++) vals[i] = Math.random();
 
-        // Find best overall
         let bestVal = -1, bestIdx = 0;
         for (let i = 0; i < n; i++) {
           if (vals[i] > bestVal) { bestVal = vals[i]; bestIdx = i; }
         }
 
-        // Best in rejected set
         let bestInRejected = -1;
         for (let i = 0; i < rejectCount; i++) {
           if (vals[i] > bestInRejected) bestInRejected = vals[i];
         }
 
-        // Accept first one better than rejected best
         let picked = n - 1;
         for (let i = rejectCount; i < n; i++) {
           if (vals[i] > bestInRejected) { picked = i; break; }
@@ -175,7 +164,6 @@
     ctx.lineTo(pad.left + pw, pad.top + ph);
     ctx.stroke();
 
-    // Y labels (0-50%)
     ctx.fillStyle = '#555';
     ctx.font = '10px JetBrains Mono';
     ctx.textAlign = 'right';
@@ -189,7 +177,6 @@
       ctx.stroke();
     }
 
-    // X labels
     ctx.textAlign = 'center';
     ctx.fillStyle = '#555';
     for (let p = 0; p <= 100; p += 20) {
@@ -198,21 +185,13 @@
     }
     ctx.fillText('rejection threshold', pad.left + pw / 2, CH - 5);
 
-    // Vertical reference at 1/e
     ctx.setLineDash([4, 4]);
     ctx.strokeStyle = '#333';
     const xe = pad.left + (1 / Math.E) * pw;
-    ctx.beginPath();
-    ctx.moveTo(xe, pad.top);
-    ctx.lineTo(xe, pad.top + ph);
-    ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(xe, pad.top); ctx.lineTo(xe, pad.top + ph); ctx.stroke();
 
-    // Horizontal reference at 1/e success
     const ye = pad.top + ph - ((100 / Math.E) / 50) * ph;
-    ctx.beginPath();
-    ctx.moveTo(pad.left, ye);
-    ctx.lineTo(pad.left + pw, ye);
-    ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(pad.left, ye); ctx.lineTo(pad.left + pw, ye); ctx.stroke();
     ctx.setLineDash([]);
 
     ctx.fillStyle = '#444';
@@ -228,11 +207,9 @@
       return;
     }
 
-    // Area fill
     ctx.beginPath();
     ctx.moveTo(pad.left, pad.top + ph);
-    for (let i = 0; i < simData.results.length; i++) {
-      const d = simData.results[i];
+    for (const d of simData.results) {
       const x = pad.left + (d.threshold / 100) * pw;
       const y = pad.top + ph - (d.successRate * 100 / 50) * ph;
       ctx.lineTo(x, y);
@@ -242,7 +219,6 @@
     ctx.fillStyle = 'rgba(0, 212, 170, 0.12)';
     ctx.fill();
 
-    // Line
     ctx.beginPath();
     ctx.strokeStyle = '#00d4aa';
     ctx.lineWidth = 2;
@@ -255,10 +231,9 @@
     }
     ctx.stroke();
 
-    // Peak dot
     let peakIdx = 0;
     simData.results.forEach((d, i) => {
-      if (d.successRate > simData.results[peakIdx].successRate) peakIdx = i;
+      if (d.successRate > simData!.results[peakIdx].successRate) peakIdx = i;
     });
     const peakD = simData.results[peakIdx];
     const peakX = pad.left + (peakD.threshold / 100) * pw;
@@ -269,11 +244,11 @@
     ctx.fill();
   }
 
-  document.getElementById('sp-run').addEventListener('click', () => {
-    if (running) return;
-    running = true;
-    const n = parseInt(document.getElementById('sp-sim-n')?.value) || 100;
-    const trials = parseInt(document.getElementById('sp-sim-trials')?.value) || 5000;
+  document.getElementById('sp-run')!.addEventListener('click', () => {
+    if (simRunning) return;
+    simRunning = true;
+    const n = parseInt((document.getElementById('sp-sim-n') as HTMLInputElement | null)?.value ?? '100') || 100;
+    const trials = parseInt((document.getElementById('sp-sim-trials') as HTMLInputElement | null)?.value ?? '5000') || 5000;
 
     simData = runSimulation(n, trials);
     simEls.trials.textContent = trials.toLocaleString();
@@ -284,11 +259,11 @@
     simEls.peakRate.textContent = (peak.successRate * 100).toFixed(1) + '%';
 
     drawChart();
-    running = false;
+    simRunning = false;
   });
 
-  document.getElementById('sp-sim-reset').addEventListener('click', () => {
-    if (running) return;
+  document.getElementById('sp-sim-reset')!.addEventListener('click', () => {
+    if (simRunning) return;
     simData = null;
     simEls.trials.textContent = '0';
     simEls.peak.textContent = '\u2014';
@@ -297,4 +272,6 @@
   });
 
   drawChart();
-})();
+}
+
+main();
