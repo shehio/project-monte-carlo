@@ -645,6 +645,81 @@ label {
   text-align: right;
 }
 
+/* ── mcts panel (explanation + results side-by-side) ── */
+
+.mcts-panel {
+  display: flex;
+  gap: 2rem;
+  margin-top: 1.5rem;
+  align-items: flex-start;
+}
+
+.mcts-explanation {
+  flex: 1;
+  min-width: 240px;
+  max-width: 400px;
+  font-size: 0.75rem;
+  color: var(--dim);
+  line-height: 1.7;
+}
+
+.mcts-explanation h3 {
+  color: var(--accent);
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 1px;
+  margin-bottom: 0.75rem;
+}
+
+.mcts-explanation p {
+  margin-bottom: 0.5rem;
+}
+
+.mcts-explanation strong {
+  color: var(--text);
+}
+
+.mcts-steps {
+  margin: 0.75rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.mcts-step {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+}
+
+.step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border: 1px solid var(--border);
+  color: var(--accent);
+  font-size: 0.65rem;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.mcts-step .formula {
+  display: block;
+  color: var(--accent);
+  font-size: 0.72rem;
+  margin-top: 0.25rem;
+  padding-left: 0.5rem;
+  border-left: 1px solid var(--border);
+}
+
+.mcts-results {
+  flex: 1;
+  min-width: 280px;
+  max-width: 500px;
+}
+
 /* ── mcts tree visualization ── */
 
 .mcts-tree {
@@ -802,9 +877,10 @@ label {
   .mcts-label { min-width: 2.5rem; }
   .mcts-visits { min-width: 2.5rem; }
   .mcts-wr { min-width: 3rem; }
+  .mcts-panel { flex-direction: column; }
+  .mcts-explanation { max-width: none; }
+  .mcts-results { max-width: none; min-width: 0; }
   .mcts-tree { font-size: 0.7rem; }
   .tree-node-move { min-width: 2.5rem; }
   .tree-node-info { min-width: 4rem; }
 }
-/* pricing panel font */
-/* clean up orphan rules */

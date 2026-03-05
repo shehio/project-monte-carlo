@@ -560,170 +560,102 @@
   var moveHistory = [];
   var moveStack = [];
 
-  // ── Piece SVG path drawing ──
-  // Each function draws a piece centered at (0,0) in a 1×1 unit square, scaled to fit.
-  // Call with ctx already translated/scaled to piece center.
+  // ── Piece images (SVG-based) ──
+  var pieceImages = {};
+  var piecesLoaded = false;
 
-  function drawPawn(ctx, s) {
-    var r = s * 0.44;
-    ctx.beginPath();
-    // Base
-    ctx.moveTo(-r * 0.65, r * 0.85);
-    ctx.lineTo(r * 0.65, r * 0.85);
-    ctx.lineTo(r * 0.55, r * 0.65);
-    ctx.lineTo(r * 0.35, r * 0.45);
-    // Neck
-    ctx.lineTo(r * 0.2, r * 0.15);
-    // Head (arc)
-    ctx.arc(0, -r * 0.15, r * 0.28, Math.PI * 0.3, -Math.PI * 1.3, false);
-    // Left side
-    ctx.lineTo(-r * 0.2, r * 0.15);
-    ctx.lineTo(-r * 0.35, r * 0.45);
-    ctx.lineTo(-r * 0.55, r * 0.65);
-    ctx.closePath();
+  function buildPieceImages() {
+    var WF = '#f0e8dc', WS = '#1a1a1a';
+    var BF = '#1a1a1a', BS = '#b0b0b0';
+
+    function svgWrap(body, fill, stroke) {
+      return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 45 45">' +
+        '<g fill="' + fill + '" stroke="' + stroke + '" stroke-width="1.5" ' +
+        'stroke-linecap="round" stroke-linejoin="round">' + body + '</g></svg>';
+    }
+
+    var P = {};
+    P[PAWN] =
+      '<circle cx="22.5" cy="12" r="6"/>' +
+      '<path d="M 14 34 C 15 28 18.5 23.5 22.5 21 C 26.5 23.5 30 28 31 34 Z"/>' +
+      '<path d="M 10 39 L 35 39 L 33 35 L 12 35 Z"/>';
+
+    P[ROOK] =
+      '<path d="M 9 39 L 36 39 L 36 36 L 9 36 Z"/>' +
+      '<path d="M 12 36 L 12 32 L 33 32 L 33 36 Z"/>' +
+      '<path d="M 14 32 L 14 16 L 31 16 L 31 32 Z"/>' +
+      '<path d="M 11 14 L 11 9 L 15 9 L 15 11 L 20 11 L 20 9 L 25 9 L 25 11 L 30 11 L 30 9 L 34 9 L 34 14 Z"/>';
+
+    P[KNIGHT] =
+      '<path d="M 22 10 C 32.5 11 38.5 18 38 39 L 15 39 C 15 30 25 32.5 23 18 ' +
+      'L 24 18 C 24.4 20.9 18.5 25.4 16 27 C 13 29 13.2 31.3 11 31 ' +
+      'C 10 30 12.4 28 11 28 C 10 28 11.2 29.2 10 30 C 9 30 6 31 6 26 ' +
+      'C 6 24 12 14 12 14 C 12 14 13.9 12.1 14 10.5 C 13.3 9.5 13.5 8.5 13.5 7.5 ' +
+      'C 14.5 6.5 16.5 10 16.5 10 L 18.5 10 C 18.5 10 19.3 8 21 7 C 22 7 22 10 22 10 Z"/>';
+
+    P[BISHOP] =
+      '<path d="M 9 36 C 12.4 35 19.1 36.4 22.5 34 C 25.9 36.4 32.6 35 36 36 ' +
+      'C 36 36 37.7 36.5 39 38 C 38.3 39 37.4 39 36 38.5 ' +
+      'C 32.6 37.5 25.9 39 22.5 37.5 C 19.1 39 12.4 37.5 9 38.5 ' +
+      'C 7.6 39 6.7 39 6 38 C 7.4 36.1 9 36 9 36 Z"/>' +
+      '<path d="M 15 32 C 17.5 34.5 27.5 34.5 30 32 C 30.5 30.5 30 30 30 30 ' +
+      'C 30 27.5 27.5 26 27.5 26 C 33 24.5 33.5 14.5 22.5 10.5 ' +
+      'C 11.5 14.5 12 24.5 17.5 26 C 17.5 26 15 27.5 15 30 C 15 30 14.5 30.5 15 32 Z"/>' +
+      '<circle cx="22.5" cy="8" r="2.5"/>';
+
+    P[QUEEN] =
+      '<circle cx="6" cy="12" r="2.5"/>' +
+      '<circle cx="14" cy="9" r="2.5"/>' +
+      '<circle cx="22.5" cy="8" r="2.5"/>' +
+      '<circle cx="31" cy="9" r="2.5"/>' +
+      '<circle cx="39" cy="12" r="2.5"/>' +
+      '<path d="M 9 26 C 17.5 24.5 30 24.5 36 26 L 38.5 13.5 L 31 25 ' +
+      'L 30.7 10.9 L 25.5 24.5 L 22.5 10 L 19.5 24.5 L 14.3 10.9 L 14 25 L 6.5 13.5 Z"/>' +
+      '<path d="M 9 26 C 9 28 10.5 28.5 12.5 30 C 14.5 31.5 17.5 31 22.5 31 ' +
+      'C 27.5 31 30.5 31.5 32.5 30 C 34.5 28.5 36 28 36 26 C 27.5 24.5 17.5 24.5 9 26 Z"/>' +
+      '<path d="M 11.5 38.5 L 34 38.5 L 35 37 C 35 37 27.5 32.5 22.5 32.5 ' +
+      'C 17.5 32.5 10 37 10 37 Z"/>';
+
+    P[KING] =
+      '<path d="M 22.5 11.63 L 22.5 6" fill="none" stroke-width="2"/>' +
+      '<path d="M 20 8 L 25 8" fill="none" stroke-width="2"/>' +
+      '<path d="M 22.5 25 C 22.5 25 27 17.5 25.5 14.5 C 25.5 14.5 24.5 12 22.5 12 ' +
+      'C 20.5 12 19.5 14.5 19.5 14.5 C 18 17.5 22.5 25 22.5 25"/>' +
+      '<path d="M 12.5 37 C 18 40.5 27 40.5 32.5 37 L 32.5 30 ' +
+      'C 32.5 30 41.5 25.5 38.5 19.5 C 34.5 13 25 16 22.5 23.5 ' +
+      'L 22.5 27 L 22.5 23.5 C 20 16 10.5 13 6.5 19.5 C 3.5 25.5 12.5 30 12.5 30 Z"/>' +
+      '<path d="M 12.5 30 C 18 27 27 27 32.5 30" fill="none"/>' +
+      '<path d="M 12.5 33.5 C 18 30.5 27 30.5 32.5 33.5" fill="none"/>' +
+      '<path d="M 12.5 37 C 18 34 27 34 32.5 37" fill="none"/>';
+
+    var types = [PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING];
+    var loaded = 0;
+    var total = types.length * 2;
+
+    for (var ti = 0; ti < types.length; ti++) {
+      (function (type) {
+        var variants = [
+          { key: 'w' + type, fill: WF, stroke: WS },
+          { key: 'b' + type, fill: BF, stroke: BS }
+        ];
+        for (var vi = 0; vi < variants.length; vi++) {
+          (function (v) {
+            var svg = svgWrap(P[type], v.fill, v.stroke);
+            var img = new Image();
+            img.onload = function () {
+              loaded++;
+              if (loaded === total) {
+                piecesLoaded = true;
+                draw();
+              }
+            };
+            img.src = 'data:image/svg+xml;base64,' + btoa(svg);
+            pieceImages[v.key] = img;
+          })(variants[vi]);
+        }
+      })(types[ti]);
+    }
   }
-
-  function drawRook(ctx, s) {
-    var r = s * 0.44;
-    ctx.beginPath();
-    // Base
-    ctx.moveTo(-r * 0.7, r * 0.85);
-    ctx.lineTo(r * 0.7, r * 0.85);
-    ctx.lineTo(r * 0.6, r * 0.65);
-    // Right wall
-    ctx.lineTo(r * 0.45, r * 0.65);
-    ctx.lineTo(r * 0.45, -r * 0.35);
-    // Crenellations
-    ctx.lineTo(r * 0.55, -r * 0.35);
-    ctx.lineTo(r * 0.55, -r * 0.7);
-    ctx.lineTo(r * 0.3, -r * 0.7);
-    ctx.lineTo(r * 0.3, -r * 0.45);
-    ctx.lineTo(r * 0.1, -r * 0.45);
-    ctx.lineTo(r * 0.1, -r * 0.7);
-    ctx.lineTo(-r * 0.1, -r * 0.7);
-    ctx.lineTo(-r * 0.1, -r * 0.45);
-    ctx.lineTo(-r * 0.3, -r * 0.45);
-    ctx.lineTo(-r * 0.3, -r * 0.7);
-    ctx.lineTo(-r * 0.55, -r * 0.7);
-    ctx.lineTo(-r * 0.55, -r * 0.35);
-    // Left wall
-    ctx.lineTo(-r * 0.45, -r * 0.35);
-    ctx.lineTo(-r * 0.45, r * 0.65);
-    ctx.lineTo(-r * 0.6, r * 0.65);
-    ctx.closePath();
-  }
-
-  function drawKnight(ctx, s) {
-    var r = s * 0.44;
-    ctx.beginPath();
-    // Base
-    ctx.moveTo(-r * 0.6, r * 0.85);
-    ctx.lineTo(r * 0.55, r * 0.85);
-    ctx.lineTo(r * 0.45, r * 0.6);
-    // Body right side
-    ctx.lineTo(r * 0.35, r * 0.3);
-    // Nose / head
-    ctx.lineTo(r * 0.55, -r * 0.1);
-    ctx.lineTo(r * 0.5, -r * 0.3);
-    ctx.lineTo(r * 0.25, -r * 0.15);
-    // Ear
-    ctx.lineTo(r * 0.15, -r * 0.65);
-    ctx.lineTo(r * 0.0, -r * 0.85);
-    ctx.lineTo(-r * 0.15, -r * 0.65);
-    // Mane / back
-    ctx.lineTo(-r * 0.25, -r * 0.4);
-    ctx.lineTo(-r * 0.35, -r * 0.15);
-    ctx.lineTo(-r * 0.4, r * 0.2);
-    ctx.lineTo(-r * 0.5, r * 0.6);
-    ctx.closePath();
-  }
-
-  function drawBishop(ctx, s) {
-    var r = s * 0.44;
-    ctx.beginPath();
-    // Base
-    ctx.moveTo(-r * 0.6, r * 0.85);
-    ctx.lineTo(r * 0.6, r * 0.85);
-    ctx.lineTo(r * 0.45, r * 0.65);
-    // Right side taper
-    ctx.lineTo(r * 0.25, r * 0.4);
-    // Mitre curve (right)
-    ctx.quadraticCurveTo(r * 0.4, -r * 0.1, r * 0.25, -r * 0.5);
-    // Tip
-    ctx.lineTo(r * 0.08, -r * 0.7);
-    ctx.lineTo(0, -r * 0.9);
-    ctx.lineTo(-r * 0.08, -r * 0.7);
-    // Mitre curve (left)
-    ctx.lineTo(-r * 0.25, -r * 0.5);
-    ctx.quadraticCurveTo(-r * 0.4, -r * 0.1, -r * 0.25, r * 0.4);
-    ctx.lineTo(-r * 0.45, r * 0.65);
-    ctx.closePath();
-  }
-
-  function drawQueen(ctx, s) {
-    var r = s * 0.44;
-    ctx.beginPath();
-    // Base
-    ctx.moveTo(-r * 0.7, r * 0.85);
-    ctx.lineTo(r * 0.7, r * 0.85);
-    ctx.lineTo(r * 0.55, r * 0.6);
-    // Right crown slope
-    ctx.lineTo(r * 0.4, r * 0.15);
-    // Crown points
-    ctx.lineTo(r * 0.65, -r * 0.6);
-    ctx.lineTo(r * 0.35, -r * 0.2);
-    ctx.lineTo(r * 0.3, -r * 0.75);
-    ctx.lineTo(0, -r * 0.35);
-    ctx.lineTo(-r * 0.3, -r * 0.75);
-    ctx.lineTo(-r * 0.35, -r * 0.2);
-    ctx.lineTo(-r * 0.65, -r * 0.6);
-    // Left crown slope
-    ctx.lineTo(-r * 0.4, r * 0.15);
-    ctx.lineTo(-r * 0.55, r * 0.6);
-    ctx.closePath();
-  }
-
-  function drawKing(ctx, s) {
-    var r = s * 0.44;
-    ctx.beginPath();
-    // Base
-    ctx.moveTo(-r * 0.7, r * 0.85);
-    ctx.lineTo(r * 0.7, r * 0.85);
-    ctx.lineTo(r * 0.55, r * 0.6);
-    // Right side
-    ctx.lineTo(r * 0.45, r * 0.25);
-    ctx.lineTo(r * 0.55, r * 0.0);
-    ctx.lineTo(r * 0.45, -r * 0.2);
-    ctx.lineTo(r * 0.3, -r * 0.35);
-    // Cross arm right
-    ctx.lineTo(r * 0.25, -r * 0.45);
-    ctx.lineTo(r * 0.08, -r * 0.45);
-    // Cross top
-    ctx.lineTo(r * 0.08, -r * 0.65);
-    ctx.lineTo(r * 0.2, -r * 0.65);
-    ctx.lineTo(r * 0.2, -r * 0.78);
-    ctx.lineTo(-r * 0.2, -r * 0.78);
-    ctx.lineTo(-r * 0.2, -r * 0.65);
-    ctx.lineTo(-r * 0.08, -r * 0.65);
-    // Cross arm left
-    ctx.lineTo(-r * 0.08, -r * 0.45);
-    ctx.lineTo(-r * 0.25, -r * 0.45);
-    ctx.lineTo(-r * 0.3, -r * 0.35);
-    // Left side
-    ctx.lineTo(-r * 0.45, -r * 0.2);
-    ctx.lineTo(-r * 0.55, r * 0.0);
-    ctx.lineTo(-r * 0.45, r * 0.25);
-    ctx.lineTo(-r * 0.55, r * 0.6);
-    ctx.closePath();
-  }
-
-  var PIECE_DRAW = {};
-  PIECE_DRAW[PAWN] = drawPawn;
-  PIECE_DRAW[KNIGHT] = drawKnight;
-  PIECE_DRAW[BISHOP] = drawBishop;
-  PIECE_DRAW[ROOK] = drawRook;
-  PIECE_DRAW[QUEEN] = drawQueen;
-  PIECE_DRAW[KING] = drawKing;
 
   // Board colors
   var LIGHT_SQ = '#3d3d3d';
@@ -757,6 +689,7 @@
       });
     }
 
+    buildPieceImages();
     newGame();
     // Defer first resize to ensure layout is computed
     requestAnimationFrame(function () {
@@ -909,32 +842,16 @@
 
       // Piece
       var piece = gameState.board[sq];
-      if (piece !== EMPTY) {
+      if (piece !== EMPTY && piecesLoaded) {
         var type = Math.abs(piece);
         var isWhite = piece > 0;
-        var pcx = pos.x + SQUARE_SIZE / 2;
-        var pcy = pos.y + SQUARE_SIZE / 2;
-        var drawFn = PIECE_DRAW[type];
-
-        if (drawFn) {
-          ctx.save();
-          ctx.translate(pcx, pcy);
-          drawFn(ctx, SQUARE_SIZE);
-          // Fill + outline for contrast
-          if (isWhite) {
-            ctx.fillStyle = '#e8e0d4';
-            ctx.fill();
-            ctx.strokeStyle = '#222';
-            ctx.lineWidth = Math.max(1, SQUARE_SIZE * 0.025);
-            ctx.stroke();
-          } else {
-            ctx.fillStyle = '#2a2a2a';
-            ctx.fill();
-            ctx.strokeStyle = '#aaa';
-            ctx.lineWidth = Math.max(1, SQUARE_SIZE * 0.025);
-            ctx.stroke();
-          }
-          ctx.restore();
+        var key = (isWhite ? 'w' : 'b') + type;
+        var img = pieceImages[key];
+        if (img) {
+          var ps = SQUARE_SIZE * 0.9;
+          var px = pos.x + (SQUARE_SIZE - ps) / 2;
+          var py = pos.y + (SQUARE_SIZE - ps) / 2;
+          ctx.drawImage(img, px, py, ps, ps);
         }
       }
     }
