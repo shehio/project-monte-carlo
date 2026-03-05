@@ -1,7 +1,7 @@
 ---
 title: "chess"
 subtitle: "mcts with piece-square evaluation"
-js: ["mcts.js", "chess.js"]
+js: "chess.ts"
 ---
 
 <div class="explanation">
@@ -9,6 +9,9 @@ js: ["mcts.js", "chess.js"]
   <p>The evaluation combines <strong>material counting</strong> (pawn=100, knight=320, bishop=330, rook=500, queen=900) with <strong>piece-square tables</strong> that encode positional knowledge — central pawns score higher, knights prefer the center, kings hide in corners during the middlegame.</p>
   <p class="formula">eval = Σ (material + PST[piece][square]) per piece</p>
   <p>With ~3,000 MCTS iterations per move, the AI plays at roughly 1000–1200 Elo. It understands basic tactics (captures, forks) and positional concepts (center control, king safety) but can miss deep combinations.</p>
+  <p class="formula">references</p>
+  <p>Browne et al. "A survey of Monte Carlo tree search methods." <em>IEEE Transactions on Computational Intelligence and AI in Games</em>, 2012.</p>
+  <p>Silver et al. "Mastering chess and shogi by self-play." <em>Science</em>, 2018.</p>
 </div>
 
 <div class="data-indicator live"><span class="dot"></span> live · mcts</div>
