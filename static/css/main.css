@@ -494,26 +494,27 @@ label {
 
 .move-history {
   font-size: 0.75rem;
-  line-height: 1.8;
   max-height: 560px;
   overflow-y: auto;
+}
+
+.move-history .move-row {
   display: flex;
-  flex-wrap: wrap;
-  align-content: flex-start;
-  gap: 0 0.15rem;
+  align-items: baseline;
+  padding: 0.15rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
 }
 
 .move-history .move-num {
   color: var(--dim);
   min-width: 2rem;
-  margin-right: 0.2rem;
+  flex-shrink: 0;
 }
 
 .move-history .move-white,
 .move-history .move-black {
   color: var(--text);
-  min-width: 2.8rem;
-  margin-right: 0.4rem;
+  min-width: 3.5rem;
 }
 
 .move-history .move-white { color: var(--accent); }
@@ -720,130 +721,26 @@ label {
   max-width: 500px;
 }
 
-/* ── mcts tree visualization ── */
+/* ── mcts tree visualization (canvas) ── */
 
 .mcts-tree {
-  margin-top: 1.5rem;
-  font-size: 0.75rem;
-  max-width: 500px;
+  margin-top: 1rem;
 }
 
-.tree-header {
+.mcts-tree .tree-header {
   color: var(--dim);
+  font-size: 0.75rem;
   letter-spacing: 1px;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.5rem;
   padding-bottom: 0.4rem;
   border-bottom: 1px solid var(--border);
 }
 
-.tree-root {
-  color: var(--accent);
-  font-size: 0.8rem;
-  letter-spacing: 1px;
-  margin-bottom: 0.3rem;
-}
-
-.tree-branches {
-  padding-left: 0.5rem;
-}
-
-.tree-branch {
-  margin-bottom: 0.6rem;
-}
-
-.tree-connector {
-  display: flex;
-  align-items: center;
-  height: 12px;
-  padding-left: 4px;
-}
-
-.tree-line {
-  display: block;
-  width: 1px;
-  height: 12px;
-  background: var(--border);
-}
-
-.tree-node {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.25rem 0.5rem;
-  border-left: 2px solid var(--border);
-  font-variant-numeric: tabular-nums;
-}
-
-.tree-branch.best .tree-node {
-  border-left-color: var(--accent);
-}
-
-.tree-node-move {
-  color: var(--accent);
-  min-width: 3.5rem;
-  letter-spacing: 0.5px;
-  font-weight: 500;
-}
-
-.tree-node-bar {
-  flex: 1;
-  height: 5px;
-  background: var(--border);
-  min-width: 40px;
-  max-width: 120px;
-}
-
-.tree-node-bar span {
-  display: block;
-  height: 100%;
-  background: var(--accent);
-  opacity: 0.5;
-}
-
-.tree-branch.best .tree-node-bar span {
-  opacity: 0.8;
-}
-
-.tree-node-info {
-  color: var(--dim);
-  min-width: 5rem;
-  text-align: right;
-  font-size: 0.7rem;
-}
-
-.tree-children {
-  padding-left: 1.5rem;
-  border-left: 2px solid var(--border);
-  margin-left: 0;
-}
-
-.tree-branch.best .tree-children {
-  border-left-color: rgba(0, 212, 170, 0.25);
-}
-
-.tree-leaf {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.15rem 0;
-  font-size: 0.7rem;
-}
-
-.tree-leaf-line {
-  display: inline-block;
-  width: 10px;
-  height: 1px;
-  background: var(--border);
-  flex-shrink: 0;
-}
-
-.tree-leaf-move {
-  color: var(--text);
-  min-width: 3rem;
-}
-
-.tree-leaf-info {
-  color: var(--dim);
+.mcts-tree canvas {
+  width: 100%;
+  height: auto;
+  background: transparent;
+  border: none;
 }
 
 /* ── responsive ── */
@@ -880,7 +777,4 @@ label {
   .mcts-panel { flex-direction: column; }
   .mcts-explanation { max-width: none; }
   .mcts-results { max-width: none; min-width: 0; }
-  .mcts-tree { font-size: 0.7rem; }
-  .tree-node-move { min-width: 2.5rem; }
-  .tree-node-info { min-width: 4rem; }
 }
