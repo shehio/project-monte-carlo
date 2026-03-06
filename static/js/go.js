@@ -594,56 +594,132 @@
   }
 
   function renderTree(tree, colLabels) {
-    var treeEl = document.getElementById('mcts-tree');
-    if (!treeEl) return;
+    var container = document.getElementById('mcts-tree');
+    if (!container) return;
 
     var children = tree.children.slice(0, 5);
     if (children.length === 0) {
-      treeEl.innerHTML = '';
+      container.innerHTML = '';
       return;
     }
 
-    var maxVisits = children[0].visits || 1;
-
-    var html = '<div class="tree-header">search tree · ' + tree.visits.toLocaleString() + ' total visits</div>';
-    html += '<div class="tree-root">root</div>';
-    html += '<div class="tree-branches">';
-
-    for (var i = 0; i < children.length; i++) {
-      var c = children[i];
-      var label = goMoveLabel(c.move, colLabels);
-      var pct = (c.visits / maxVisits * 100).toFixed(0);
-      var wr = c.winRate.toFixed(1);
-      var isBest = i === 0;
-
-      html += '<div class="tree-branch' + (isBest ? ' best' : '') + '">';
-      html += '<div class="tree-connector"><span class="tree-line"></span></div>';
-      html += '<div class="tree-node">';
-      html += '<span class="tree-node-move">' + label + '</span>';
-      html += '<span class="tree-node-bar"><span style="width:' + pct + '%"></span></span>';
-      html += '<span class="tree-node-info">' + c.visits + ' · ' + wr + '%</span>';
-      html += '</div>';
-
-      if (c.children && c.children.length > 0) {
-        html += '<div class="tree-children">';
-        for (var j = 0; j < c.children.length; j++) {
-          var gc = c.children[j];
-          var gcLabel = goMoveLabel(gc.move, colLabels);
-          var gcWr = gc.winRate.toFixed(1);
-          html += '<div class="tree-leaf">';
-          html += '<span class="tree-leaf-line"></span>';
-          html += '<span class="tree-leaf-move">' + gcLabel + '</span>';
-          html += '<span class="tree-leaf-info">' + gc.visits + ' · ' + gcWr + '%</span>';
-          html += '</div>';
-        }
-        html += '</div>';
-      }
-
-      html += '</div>';
+    var tc = container.querySelector('canvas');
+    if (!tc) {
+      container.innerHTML = '<div class="tree-header">search tree</div><canvas></canvas>';
+      tc = container.querySelector('canvas');
+    } else {
+      container.querySelector('.tree-header').textContent = 'search tree';
     }
 
-    html += '</div>';
-    treeEl.innerHTML = html;
+    var cw = container.clientWidth || 460;
+    var dpr = window.devicePixelRatio || 1;
+    var nodeR = 22;
+    var levelGap = 80;
+    var topPad = 30;
+    var botPad = 20;
+
+    var maxGC = 0;
+    for (var ci = 0; ci < children.length; ci++) {
+      var gcLen = children[ci].children ? children[ci].children.length : 0;
+      if (gcLen > maxGC) maxGC = gcLen;
+    }
+    var levels = maxGC > 0 ? 3 : 2;
+    var ch = topPad + levels * levelGap + botPad;
+
+    tc.style.width = cw + 'px';
+    tc.style.height = ch + 'px';
+    tc.width = cw * dpr;
+    tc.height = ch * dpr;
+
+    var tx = tc.getContext('2d');
+    tx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    tx.clearRect(0, 0, cw, ch);
+
+    var rootX = cw / 2;
+    var rootY = topPad + nodeR;
+    var n1 = children.length;
+    var spacing1 = cw / (n1 + 1);
+    var l1Nodes = [];
+    for (var i = 0; i < n1; i++) {
+      l1Nodes.push({ x: spacing1 * (i + 1), y: rootY + levelGap, data: children[i], isBest: i === 0 });
+    }
+
+    tx.lineWidth = 1.5;
+    for (var e1 = 0; e1 < l1Nodes.length; e1++) {
+      var nd = l1Nodes[e1];
+      tx.strokeStyle = nd.isBest ? '#00d4aa' : '#333';
+      tx.beginPath();
+      tx.moveTo(rootX, rootY + nodeR);
+      tx.lineTo(nd.x, nd.y - nodeR);
+      tx.stroke();
+    }
+
+    var l2Nodes = [];
+    for (var c1 = 0; c1 < l1Nodes.length; c1++) {
+      var parent = l1Nodes[c1];
+      var gcs = parent.data.children || [];
+      if (gcs.length === 0) continue;
+      var gcSpan = Math.min(spacing1 * 0.8, gcs.length * 50);
+      var gcStart = parent.x - gcSpan / 2;
+      var gcStep = gcs.length > 1 ? gcSpan / (gcs.length - 1) : 0;
+      for (var g = 0; g < gcs.length; g++) {
+        var gx = gcs.length === 1 ? parent.x : gcStart + gcStep * g;
+        var gy = parent.y + levelGap;
+        tx.strokeStyle = '#2a2a2a';
+        tx.lineWidth = 1;
+        tx.beginPath();
+        tx.moveTo(parent.x, parent.y + nodeR);
+        tx.lineTo(gx, gy - nodeR);
+        tx.stroke();
+        l2Nodes.push({ x: gx, y: gy, data: gcs[g], isBest: false });
+      }
+    }
+
+    drawGoNode(tx, rootX, rootY, nodeR, 'root', tree.visits, null, true, false);
+    for (var d1 = 0; d1 < l1Nodes.length; d1++) {
+      var n = l1Nodes[d1];
+      drawGoNode(tx, n.x, n.y, nodeR, goMoveLabel(n.data.move, colLabels),
+                 n.data.visits, n.data.winRate, false, n.isBest);
+    }
+    var smallR = 16;
+    for (var d2 = 0; d2 < l2Nodes.length; d2++) {
+      var n2 = l2Nodes[d2];
+      drawGoNode(tx, n2.x, n2.y, smallR, goMoveLabel(n2.data.move, colLabels),
+                 n2.data.visits, n2.data.winRate, false, false);
+    }
+  }
+
+  function drawGoNode(tx, x, y, r, label, visits, winRate, isRoot, isBest) {
+    tx.beginPath();
+    tx.arc(x, y, r, 0, Math.PI * 2);
+    if (isRoot) { tx.fillStyle = '#1a1a1a'; tx.strokeStyle = '#00d4aa'; tx.lineWidth = 2; }
+    else if (isBest) { tx.fillStyle = '#0a2a22'; tx.strokeStyle = '#00d4aa'; tx.lineWidth = 2; }
+    else { tx.fillStyle = '#1a1a1a'; tx.strokeStyle = '#333'; tx.lineWidth = 1.5; }
+    tx.fill(); tx.stroke();
+
+    var fs = r > 18 ? 10 : 8;
+    tx.font = fs + 'px JetBrains Mono, monospace';
+    tx.textAlign = 'center';
+    tx.fillStyle = isBest ? '#00d4aa' : '#888';
+    tx.fillText(label, x, y - r - 4);
+
+    tx.fillStyle = '#c8c8c8';
+    tx.font = 'bold ' + fs + 'px JetBrains Mono, monospace';
+    tx.textBaseline = 'middle';
+    if (isRoot) {
+      tx.fillText(shortGoNum(visits), x, y);
+    } else {
+      tx.fillText(shortGoNum(visits), x, y - 3);
+      tx.font = (r > 18 ? 9 : 7) + 'px JetBrains Mono, monospace';
+      tx.fillStyle = winRate >= 50 ? '#00d4aa' : '#e84057';
+      tx.fillText(winRate.toFixed(0) + '%', x, y + (r > 18 ? 9 : 7));
+    }
+    tx.textBaseline = 'alphabetic';
+  }
+
+  function shortGoNum(n) {
+    if (n >= 1000) return (n / 1000).toFixed(1) + 'k';
+    return String(n);
   }
 
   // String.prototype.padEnd polyfill
