@@ -465,6 +465,87 @@ label {
 
 #message.loss { color: var(--red); }
 
+/* ── monty hall ── */
+
+.monty-doors {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  padding: 2rem 0;
+}
+
+.door {
+  width: 120px;
+  height: 180px;
+  position: relative;
+  cursor: pointer;
+}
+
+.door-front, .door-back {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  transition: opacity 0.4s, border-color 0.2s, box-shadow 0.2s;
+  font-family: var(--font);
+}
+
+.door-front {
+  background: var(--card);
+  color: var(--dim);
+  font-size: 1.5rem;
+  font-weight: 500;
+  letter-spacing: 1px;
+  z-index: 2;
+}
+
+.door-back {
+  background: var(--surface);
+  font-size: 3rem;
+  opacity: 0;
+  z-index: 1;
+}
+
+.door.opened .door-front { opacity: 0; pointer-events: none; }
+.door.opened .door-back { opacity: 1; }
+
+.door.selected .door-front { border-color: var(--accent); color: var(--accent); }
+
+.door:hover:not(.opened) .door-front { border-color: var(--accent); }
+
+.door.highlighted .door-front {
+  border-color: var(--accent);
+  animation: door-pulse 1s ease-in-out infinite;
+}
+
+.door.winner .door-back { border-color: var(--accent); box-shadow: 0 0 12px rgba(0, 212, 170, 0.3); }
+.door.loser .door-back { border-color: var(--red); }
+
+@keyframes door-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0, 212, 170, 0); }
+  50% { box-shadow: 0 0 12px 2px rgba(0, 212, 170, 0.25); }
+}
+
+.mh-choice-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 0.5rem;
+}
+
+.section-heading {
+  font-size: 0.85rem;
+  font-weight: 400;
+  letter-spacing: 2px;
+  color: var(--dim);
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
 /* ── chess layout ── */
 
 .chess-layout {
@@ -774,6 +855,10 @@ label {
   .mcts-label { min-width: 2.5rem; }
   .mcts-visits { min-width: 2.5rem; }
   .mcts-wr { min-width: 3rem; }
+  .monty-doors { gap: 0.75rem; }
+  .door { width: 90px; height: 135px; }
+  .door-front { font-size: 1.2rem; }
+  .door-back { font-size: 2rem; }
   .mcts-panel { flex-direction: column; }
   .mcts-explanation { max-width: none; }
   .mcts-results { max-width: none; min-width: 0; }
