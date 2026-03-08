@@ -14,15 +14,15 @@ js: "monty-hall.js"
 
 <div class="monty-doors" id="monty-doors">
   <div class="door" data-door="0">
-    <div class="door-front">1</div>
+    <div class="door-front"></div>
     <div class="door-back"></div>
   </div>
   <div class="door" data-door="1">
-    <div class="door-front">2</div>
+    <div class="door-front"></div>
     <div class="door-back"></div>
   </div>
   <div class="door" data-door="2">
-    <div class="door-front">3</div>
+    <div class="door-front"></div>
     <div class="door-back"></div>
   </div>
 </div>
