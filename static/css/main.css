@@ -475,10 +475,11 @@ label {
 }
 
 .door {
-  width: 120px;
-  height: 180px;
+  width: 100px;
+  height: 150px;
   position: relative;
   cursor: pointer;
+  image-rendering: pixelated;
 }
 
 .door-front, .door-back {
@@ -487,46 +488,42 @@ label {
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--border);
-  transition: opacity 0.4s, border-color 0.2s, box-shadow 0.2s;
-  font-family: var(--font);
+  border: 3px solid var(--border);
+  background: var(--card);
 }
 
 .door-front {
-  background: var(--card);
-  color: var(--dim);
-  font-size: 1.5rem;
-  font-weight: 500;
-  letter-spacing: 1px;
   z-index: 2;
+  padding: 12px;
+}
+
+.door-front svg, .door-back svg {
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
 }
 
 .door-back {
   background: var(--surface);
-  font-size: 3rem;
   opacity: 0;
   z-index: 1;
+  padding: 20px;
 }
 
 .door.opened .door-front { opacity: 0; pointer-events: none; }
 .door.opened .door-back { opacity: 1; }
 
-.door.selected .door-front { border-color: var(--accent); color: var(--accent); }
+.door.selected .door-front { border-color: var(--accent); }
 
 .door:hover:not(.opened) .door-front { border-color: var(--accent); }
 
 .door.highlighted .door-front {
   border-color: var(--accent);
-  animation: door-pulse 1s ease-in-out infinite;
+  border-style: dashed;
 }
 
-.door.winner .door-back { border-color: var(--accent); box-shadow: 0 0 12px rgba(0, 212, 170, 0.3); }
+.door.winner .door-back { border-color: var(--accent); }
 .door.loser .door-back { border-color: var(--red); }
-
-@keyframes door-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(0, 212, 170, 0); }
-  50% { box-shadow: 0 0 12px 2px rgba(0, 212, 170, 0.25); }
-}
 
 .mh-choice-buttons {
   display: flex;
@@ -856,9 +853,9 @@ label {
   .mcts-visits { min-width: 2.5rem; }
   .mcts-wr { min-width: 3rem; }
   .monty-doors { gap: 0.75rem; }
-  .door { width: 90px; height: 135px; }
-  .door-front { font-size: 1.2rem; }
-  .door-back { font-size: 2rem; }
+  .door { width: 80px; height: 120px; }
+  .door-front { padding: 8px; }
+  .door-back { padding: 14px; }
   .mcts-panel { flex-direction: column; }
   .mcts-explanation { max-width: none; }
   .mcts-results { max-width: none; min-width: 0; }

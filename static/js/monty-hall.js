@@ -1,6 +1,98 @@
 (() => {
   'use strict';
 
+  // ── Pixel art SVGs ──
+  // Each icon is a small pixel grid rendered with shape-rendering="crispEdges"
+
+  function pixelSVG(w, h, pixels, color) {
+    let rects = '';
+    for (let y = 0; y < pixels.length; y++) {
+      for (let x = 0; x < pixels[y].length; x++) {
+        if (pixels[y][x]) {
+          rects += '<rect x="' + x + '" y="' + y + '" width="1" height="1" fill="' +
+                   (typeof pixels[y][x] === 'string' ? pixels[y][x] : color) + '"/>';
+        }
+      }
+    }
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + w + ' ' + h +
+           '" shape-rendering="crispEdges">' + rects + '</svg>';
+  }
+
+  const C = '#00d4aa'; // accent
+  const D = '#555';    // dim
+  const W = '#c8c8c8'; // light
+  const R = '#e84057'; // red
+
+  // Goat pixel art (10x9)
+  const GOAT_PIXELS = [
+    [0,0,D,0,0,0,0,D,0,0],
+    [0,0,0,D,0,0,D,0,0,0],
+    [0,0,0,D,D,D,D,0,0,0],
+    [0,0,0,D,W,D,D,0,0,0],
+    [0,D,D,D,D,D,D,D,D,0],
+    [0,D,0,D,0,0,D,0,D,0],
+    [0,D,0,D,0,0,D,0,D,0],
+    [0,D,0,D,0,0,D,0,D,0],
+    [D,D,0,D,0,0,D,0,D,D],
+  ];
+
+  // Car pixel art (11x7)
+  const CAR_PIXELS = [
+    [0,0,0,C,C,C,C,C,0,0,0],
+    [0,0,C,C,C,C,C,C,C,0,0],
+    [0,C,C,D,C,C,C,D,C,C,0],
+    [C,C,C,C,C,C,C,C,C,C,C],
+    [C,C,C,C,C,C,C,C,C,C,C],
+    [0,C,W,C,0,0,0,C,W,C,0],
+    [0,0,W,0,0,0,0,0,W,0,0],
+  ];
+
+  // Door closed pixel art (10x14)
+  const DOOR_PIXELS = [
+    [D,D,D,D,D,D,D,D,D,D],
+    [D,0,0,0,0,0,0,0,0,D],
+    [D,0,0,0,0,0,0,0,0,D],
+    [D,0,0,0,0,0,0,0,0,D],
+    [D,0,0,0,0,0,0,0,0,D],
+    [D,0,0,0,0,0,0,0,0,D],
+    [D,0,0,0,0,0,0,0,0,D],
+    [D,0,0,0,0,0,0,W,0,D],
+    [D,0,0,0,0,0,0,0,0,D],
+    [D,0,0,0,0,0,0,0,0,D],
+    [D,0,0,0,0,0,0,0,0,D],
+    [D,0,0,0,0,0,0,0,0,D],
+    [D,0,0,0,0,0,0,0,0,D],
+    [D,D,D,D,D,D,D,D,D,D],
+  ];
+
+  // Pixel art number patterns (3x5 each)
+  const NUM_PIXELS = {
+    1: [[0,1,0],[1,1,0],[0,1,0],[0,1,0],[1,1,1]],
+    2: [[1,1,0],[0,0,1],[0,1,0],[1,0,0],[1,1,1]],
+    3: [[1,1,0],[0,0,1],[0,1,0],[0,0,1],[1,1,0]],
+  };
+
+  function makeDoorSVG(num) {
+    // Build door pixels with number overlay
+    const px = [];
+    for (let y = 0; y < DOOR_PIXELS.length; y++) {
+      px.push(DOOR_PIXELS[y].slice());
+    }
+    // Place number in center of door (at y=3..7, x=3..5)
+    const np = NUM_PIXELS[num];
+    if (np) {
+      for (let ny = 0; ny < 5; ny++) {
+        for (let nx = 0; nx < 3; nx++) {
+          if (np[ny][nx]) px[ny + 4][nx + 4] = C;
+        }
+      }
+    }
+    return pixelSVG(10, 14, px, D);
+  }
+
+  const GOAT_SVG = pixelSVG(10, 9, GOAT_PIXELS, D);
+  const CAR_SVG = pixelSVG(11, 7, CAR_PIXELS, C);
+
   // ── Interactive game ──
 
   const doors = document.querySelectorAll('.door');
@@ -34,9 +126,10 @@
     picked = -1;
     revealed = -1;
     phase = 'pick';
-    doors.forEach(d => {
+    doors.forEach((d, i) => {
       d.classList.remove('opened', 'selected', 'highlighted', 'winner', 'loser');
-      d.querySelector('.door-back').textContent = '';
+      d.querySelector('.door-front').innerHTML = makeDoorSVG(i + 1);
+      d.querySelector('.door-back').innerHTML = '';
     });
     choiceEl.style.display = 'none';
     messageEl.textContent = 'pick a door';
@@ -48,7 +141,7 @@
     const options = [0, 1, 2].filter(d => d !== picked && d !== carDoor);
     revealed = options[Math.floor(Math.random() * options.length)];
     doors[revealed].classList.add('opened');
-    doors[revealed].querySelector('.door-back').textContent = '🐐';
+    doors[revealed].querySelector('.door-back').innerHTML = GOAT_SVG;
     phase = 'decide';
 
     const remaining = [0, 1, 2].filter(d => d !== picked && d !== revealed)[0];
@@ -68,7 +161,7 @@
     doors.forEach((d, i) => {
       d.classList.remove('highlighted', 'selected');
       d.classList.add('opened');
-      d.querySelector('.door-back').textContent = i === carDoor ? '🚗' : '🐐';
+      d.querySelector('.door-back').innerHTML = i === carDoor ? CAR_SVG : GOAT_SVG;
     });
 
     const won = finalDoor === carDoor;
