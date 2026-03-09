@@ -18,51 +18,51 @@
            '" shape-rendering="crispEdges">' + rects + '</svg>';
   }
 
-  const C = '#00d4aa'; // accent
-  const D = '#555';    // dim
-  const W = '#c8c8c8'; // light
-  const R = '#e84057'; // red
+  const PA = '#00d4aa'; // accent
+  const PD = '#555';    // dim
+  const PW = '#c8c8c8'; // light
+  const PR = '#e84057'; // red
 
   // Goat pixel art (10x9)
   const GOAT_PIXELS = [
-    [0,0,D,0,0,0,0,D,0,0],
-    [0,0,0,D,0,0,D,0,0,0],
-    [0,0,0,D,D,D,D,0,0,0],
-    [0,0,0,D,W,D,D,0,0,0],
-    [0,D,D,D,D,D,D,D,D,0],
-    [0,D,0,D,0,0,D,0,D,0],
-    [0,D,0,D,0,0,D,0,D,0],
-    [0,D,0,D,0,0,D,0,D,0],
-    [D,D,0,D,0,0,D,0,D,D],
+    [0,0,PD,0,0,0,0,PD,0,0],
+    [0,0,0,PD,0,0,PD,0,0,0],
+    [0,0,0,PD,PD,PD,PD,0,0,0],
+    [0,0,0,PD,PW,PD,PD,0,0,0],
+    [0,PD,PD,PD,PD,PD,PD,PD,PD,0],
+    [0,PD,0,PD,0,0,PD,0,PD,0],
+    [0,PD,0,PD,0,0,PD,0,PD,0],
+    [0,PD,0,PD,0,0,PD,0,PD,0],
+    [PD,PD,0,PD,0,0,PD,0,PD,PD],
   ];
 
   // Car pixel art (11x7)
   const CAR_PIXELS = [
-    [0,0,0,C,C,C,C,C,0,0,0],
-    [0,0,C,C,C,C,C,C,C,0,0],
-    [0,C,C,D,C,C,C,D,C,C,0],
-    [C,C,C,C,C,C,C,C,C,C,C],
-    [C,C,C,C,C,C,C,C,C,C,C],
-    [0,C,W,C,0,0,0,C,W,C,0],
-    [0,0,W,0,0,0,0,0,W,0,0],
+    [0,0,0,PA,PA,PA,PA,PA,0,0,0],
+    [0,0,PA,PA,PA,PA,PA,PA,PA,0,0],
+    [0,PA,PA,PD,PA,PA,PA,PD,PA,PA,0],
+    [PA,PA,PA,PA,PA,PA,PA,PA,PA,PA,PA],
+    [PA,PA,PA,PA,PA,PA,PA,PA,PA,PA,PA],
+    [0,PA,PW,PA,0,0,0,PA,PW,PA,0],
+    [0,0,PW,0,0,0,0,0,PW,0,0],
   ];
 
   // Door closed pixel art (10x14)
   const DOOR_PIXELS = [
-    [D,D,D,D,D,D,D,D,D,D],
-    [D,0,0,0,0,0,0,0,0,D],
-    [D,0,0,0,0,0,0,0,0,D],
-    [D,0,0,0,0,0,0,0,0,D],
-    [D,0,0,0,0,0,0,0,0,D],
-    [D,0,0,0,0,0,0,0,0,D],
-    [D,0,0,0,0,0,0,0,0,D],
-    [D,0,0,0,0,0,0,W,0,D],
-    [D,0,0,0,0,0,0,0,0,D],
-    [D,0,0,0,0,0,0,0,0,D],
-    [D,0,0,0,0,0,0,0,0,D],
-    [D,0,0,0,0,0,0,0,0,D],
-    [D,0,0,0,0,0,0,0,0,D],
-    [D,D,D,D,D,D,D,D,D,D],
+    [PD,PD,PD,PD,PD,PD,PD,PD,PD,PD],
+    [PD,0,0,0,0,0,0,0,0,PD],
+    [PD,0,0,0,0,0,0,0,0,PD],
+    [PD,0,0,0,0,0,0,0,0,PD],
+    [PD,0,0,0,0,0,0,0,0,PD],
+    [PD,0,0,0,0,0,0,0,0,PD],
+    [PD,0,0,0,0,0,0,0,0,PD],
+    [PD,0,0,0,0,0,0,PW,0,PD],
+    [PD,0,0,0,0,0,0,0,0,PD],
+    [PD,0,0,0,0,0,0,0,0,PD],
+    [PD,0,0,0,0,0,0,0,0,PD],
+    [PD,0,0,0,0,0,0,0,0,PD],
+    [PD,0,0,0,0,0,0,0,0,PD],
+    [PD,PD,PD,PD,PD,PD,PD,PD,PD,PD],
   ];
 
   // Pixel art number patterns (3x5 each)
@@ -83,15 +83,15 @@
     if (np) {
       for (let ny = 0; ny < 5; ny++) {
         for (let nx = 0; nx < 3; nx++) {
-          if (np[ny][nx]) px[ny + 4][nx + 4] = C;
+          if (np[ny][nx]) px[ny + 4][nx + 4] = PA;
         }
       }
     }
-    return pixelSVG(10, 14, px, D);
+    return pixelSVG(10, 14, px, PD);
   }
 
-  const GOAT_SVG = pixelSVG(10, 9, GOAT_PIXELS, D);
-  const CAR_SVG = pixelSVG(11, 7, CAR_PIXELS, C);
+  const GOAT_SVG = pixelSVG(10, 9, GOAT_PIXELS, PD);
+  const CAR_SVG = pixelSVG(11, 7, CAR_PIXELS, PA);
 
   // ── Interactive game ──
 
