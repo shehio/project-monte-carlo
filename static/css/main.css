@@ -945,6 +945,282 @@ label {
   border: none;
 }
 
+/* ── craps ── */
+
+.craps-table {
+  text-align: center;
+  padding: 1.5rem 0;
+}
+
+.craps-dice-row {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.craps-die {
+  width: 72px;
+  height: 72px;
+  background: #f5f5f0;
+  border-radius: 8px;
+  padding: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.die-face {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  width: 100%;
+  height: 100%;
+}
+
+.die-dot {
+  width: 12px;
+  height: 12px;
+  background: #111;
+  border-radius: 50%;
+  align-self: center;
+  justify-self: center;
+}
+
+.craps-roll-total {
+  font-size: 1.8rem;
+  font-weight: 500;
+  color: var(--accent);
+  margin-bottom: 0.5rem;
+}
+
+.craps-phase {
+  font-size: 0.78rem;
+  color: var(--dim);
+  letter-spacing: 1px;
+}
+
+.craps-point {
+  font-size: 0.75rem;
+  color: var(--accent);
+  margin-top: 0.25rem;
+}
+
+.craps-history {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin: 1rem 0;
+  justify-content: center;
+}
+
+.craps-dot {
+  font-size: 0.6rem;
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
+  text-align: center;
+  border-radius: 50%;
+  font-variant-numeric: tabular-nums;
+  background: rgba(200, 200, 200, 0.1);
+  color: var(--dim);
+}
+
+.craps-dot.natural {
+  background: rgba(0, 212, 170, 0.2);
+  color: var(--accent);
+}
+
+.craps-dot.craps-loss {
+  background: rgba(232, 64, 87, 0.2);
+  color: var(--red);
+}
+
+/* ── poker ── */
+
+.poker-table {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1.5rem 0;
+}
+
+.ai-row {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.ai-area {
+  text-align: center;
+  min-width: 140px;
+}
+
+.ai-area h3, .community-area h3 {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--dim);
+  margin-bottom: 0.75rem;
+  letter-spacing: 1px;
+}
+
+.community-area {
+  text-align: center;
+  padding: 1rem 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  width: 100%;
+}
+
+.pot-display {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+.pot-display .label {
+  font-size: 0.75rem;
+  color: var(--dim);
+  letter-spacing: 1px;
+}
+
+.pot-display .value {
+  font-size: 1.3rem;
+  color: var(--accent);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.hand-label {
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--accent);
+  letter-spacing: 1px;
+  min-height: 1.2rem;
+}
+
+.ai-status {
+  font-size: 0.72rem;
+  color: var(--dim);
+  margin-top: 0.4rem;
+  letter-spacing: 0.5px;
+  min-height: 1rem;
+}
+
+.ai-status.folded { color: var(--red); }
+
+.folded-card { opacity: 0.3; }
+
+.sim-controls {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  margin: 1rem 0;
+}
+
+.card-picker {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.card-picker label {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.75rem;
+  color: var(--dim);
+}
+
+.card-picker select {
+  width: auto;
+  min-width: 3rem;
+}
+
+/* ── solitaire ── */
+
+#sol-game {
+  padding: 1rem 0;
+}
+
+.sol-top-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+}
+
+.sol-stock-waste {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.sol-foundations {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.sol-pile {
+  width: 72px;
+  min-height: 100px;
+  border: 1px dashed var(--border);
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.sol-pile .playing-card {
+  margin: 0;
+}
+
+.sol-empty-pile {
+  width: 72px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  color: var(--dim);
+  border: 1px dashed var(--border);
+  border-radius: 5px;
+}
+
+.sol-tableau {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+.sol-column {
+  width: 72px;
+  position: relative;
+  min-height: 150px;
+}
+
+.sol-stacked {
+  position: absolute;
+  left: 0;
+}
+
+.sol-clickable {
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+
+.sol-clickable:hover {
+  transform: translateY(-2px);
+}
+
+.sol-selected {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+  transform: translateY(-4px);
+}
+
 /* ── responsive ── */
 
 @media (max-width: 640px) {
@@ -982,6 +1258,16 @@ label {
   .mcts-panel { flex-direction: column; }
   .mcts-explanation { max-width: none; }
   .mcts-results { max-width: none; min-width: 0; }
+  .craps-die { width: 56px; height: 56px; padding: 8px; }
+  .die-dot { width: 9px; height: 9px; }
+  .craps-dice-row { gap: 1rem; }
+  .ai-row { gap: 1rem; }
+  .ai-area { min-width: 100px; }
+  .sim-controls { flex-direction: column; align-items: flex-start; }
+  .card-picker { flex-wrap: wrap; }
+  .sol-top-row { flex-direction: column; align-items: center; }
+  .sol-tableau { gap: 0.35rem; }
+  .sol-column { width: 54px; }
+  .sol-pile { width: 54px; min-height: 76px; }
+  .sol-empty-pile { width: 54px; height: 76px; font-size: 1rem; }
 }
-/* card shadow on hover */
-/* bet input validation */
