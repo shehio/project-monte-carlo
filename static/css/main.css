@@ -475,8 +475,8 @@ label {
 }
 
 .door {
-  width: 100px;
-  height: 150px;
+  width: 160px;
+  height: 220px;
   position: relative;
   cursor: pointer;
   image-rendering: pixelated;
@@ -494,7 +494,7 @@ label {
 
 .door-front {
   z-index: 2;
-  padding: 12px;
+  padding: 20px;
 }
 
 .door-front svg, .door-back svg {
@@ -508,7 +508,7 @@ label {
   background: var(--surface);
   opacity: 0;
   z-index: 1;
-  padding: 20px;
+  padding: 30px;
 }
 
 .door.opened .door-front { opacity: 0; pointer-events: none; }
@@ -853,10 +853,10 @@ label {
   .mcts-label { min-width: 2.5rem; }
   .mcts-visits { min-width: 2.5rem; }
   .mcts-wr { min-width: 3rem; }
-  .monty-doors { gap: 0.75rem; }
-  .door { width: 80px; height: 120px; }
-  .door-front { padding: 8px; }
-  .door-back { padding: 14px; }
+  .monty-doors { gap: 0.5rem; }
+  .door { width: 100px; height: 150px; }
+  .door-front { padding: 12px; }
+  .door-back { padding: 18px; }
   .mcts-panel { flex-direction: column; }
   .mcts-explanation { max-width: none; }
   .mcts-results { max-width: none; min-width: 0; }
