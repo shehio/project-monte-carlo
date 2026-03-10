@@ -23,17 +23,21 @@
   const PW = '#c8c8c8'; // light
   const PR = '#e84057'; // red
 
-  // Goat pixel art (10x9)
+  // Goat pixel art (14x13) — side profile, clear horns/beard/tail
   const GOAT_PIXELS = [
-    [0,0,PD,0,0,0,0,PD,0,0],
-    [0,0,0,PD,0,0,PD,0,0,0],
-    [0,0,0,PD,PD,PD,PD,0,0,0],
-    [0,0,0,PD,PW,PD,PD,0,0,0],
-    [0,PD,PD,PD,PD,PD,PD,PD,PD,0],
-    [0,PD,0,PD,0,0,PD,0,PD,0],
-    [0,PD,0,PD,0,0,PD,0,PD,0],
-    [0,PD,0,PD,0,0,PD,0,PD,0],
-    [PD,PD,0,PD,0,0,PD,0,PD,PD],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0,PD, 0,PD, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0,PD, 0,PD, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0,PD,PD,PD, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0,PD,PW,PD, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0,PD,PD,PD,PD, 0, 0],
+    [PD, 0, 0, 0, 0, 0, 0,PD,PD,PD,PD,PD, 0, 0],
+    [0,PD,PD,PD,PD,PD,PD,PD,PD,PD, 0,PD, 0, 0],
+    [0, 0,PD,PD,PD,PD,PD,PD,PD, 0, 0,PD,PD, 0],
+    [0, 0,PD, 0, 0, 0,PD, 0,PD, 0, 0, 0, 0, 0],
+    [0, 0,PD, 0, 0, 0,PD, 0,PD, 0, 0, 0, 0, 0],
+    [0, 0,PD, 0, 0, 0,PD, 0,PD, 0, 0, 0, 0, 0],
+    [0, 0,PD,PD, 0, 0,PD,PD,PD,PD, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
   ];
 
   // Car pixel art (11x7)
@@ -90,7 +94,7 @@
     return pixelSVG(10, 14, px, PD);
   }
 
-  const GOAT_SVG = pixelSVG(10, 9, GOAT_PIXELS, PD);
+  const GOAT_SVG = pixelSVG(14, 13, GOAT_PIXELS, PD);
   const CAR_SVG = pixelSVG(11, 7, CAR_PIXELS, PA);
 
   // ── Interactive game ──
