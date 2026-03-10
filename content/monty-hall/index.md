@@ -6,26 +6,17 @@ js: "monty-hall.js"
 
 <div class="explanation">
   <p>You're on a game show. Three doors — behind one is a car, behind the other two are goats. You pick a door. The host, who knows what's behind each door, opens another door to reveal a goat. Should you <strong>switch</strong> to the remaining door?</p>
-  <p class="formula">P(win | switch) = 2/3 &emsp; P(win | stay) = 1/3</p>
+  <p class="formula" id="mh-formula">P(win | switch) = 2/3 &emsp; P(win | stay) = 1/3</p>
   <p>Counterintuitively, switching doubles your odds. Your initial pick had a 1/3 chance of being right — the host's reveal doesn't change that. The remaining door absorbs the full 2/3 probability. Play the game below, then run the simulation to watch the numbers converge.</p>
 </div>
 
 <div class="data-indicator live"><span class="dot"></span> interactive</div>
 
-<div class="monty-doors" id="monty-doors">
-  <div class="door" data-door="0">
-    <div class="door-front"></div>
-    <div class="door-back"></div>
-  </div>
-  <div class="door" data-door="1">
-    <div class="door-front"></div>
-    <div class="door-back"></div>
-  </div>
-  <div class="door" data-door="2">
-    <div class="door-front"></div>
-    <div class="door-back"></div>
-  </div>
+<div class="controls" style="margin-top:0">
+  <label>doors <input type="number" id="mh-door-count" value="3" min="3" max="20"></label>
 </div>
+
+<div class="monty-doors" id="monty-doors"></div>
 
 <div id="mh-message" class="game-message">pick a door</div>
 
@@ -83,6 +74,7 @@ js: "monty-hall.js"
 </div>
 
 <div class="controls">
-  <button id="mh-run">run 10,000 trials</button>
+  <label>trials <input type="number" id="mh-trial-count" value="10000" min="100" max="1000000" step="1000"></label>
+  <button id="mh-run">run</button>
   <button id="mh-reset">reset</button>
 </div>

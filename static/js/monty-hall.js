@@ -2,7 +2,6 @@
   'use strict';
 
   // ── Pixel art SVGs ──
-  // Each icon is a small pixel grid rendered with shape-rendering="crispEdges"
 
   function pixelSVG(w, h, pixels, color) {
     let rects = '';
@@ -18,13 +17,12 @@
            '" shape-rendering="crispEdges">' + rects + '</svg>';
   }
 
-  const PA = '#00d4aa'; // accent
-  const PD = '#555';    // dim
-  const PW = '#c8c8c8'; // light
-  const PR = '#e84057'; // red
-  const PE = '#111';    // eye
+  const PA = '#00d4aa';
+  const PD = '#555';
+  const PW = '#c8c8c8';
+  const PR = '#e84057';
+  const PE = '#111';
 
-  // Goat pixel art (14x15) — side profile, clear horns/body/legs
   const GOAT_PIXELS = [
     [0, 0, 0, 0, 0, 0, 0, 0,PA, 0,PA, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0,PA, 0, 0, 0, 0],
@@ -42,7 +40,6 @@
     [0, 0,PD,PD,PD, 0,PD,PD,PD, 0, 0, 0, 0, 0],
   ];
 
-  // Car pixel art (11x7)
   const CAR_PIXELS = [
     [0,0,0,PA,PA,PA,PA,PA,0,0,0],
     [0,0,PA,PA,PA,PA,PA,PA,PA,0,0],
@@ -53,7 +50,6 @@
     [0,0,PW,0,0,0,0,0,PW,0,0],
   ];
 
-  // Door closed pixel art (10x14)
   const DOOR_PIXELS = [
     [PD,PD,PD,PD,PD,PD,PD,PD,PD,PD],
     [PD,0,0,0,0,0,0,0,0,PD],
@@ -71,48 +67,67 @@
     [PD,PD,PD,PD,PD,PD,PD,PD,PD,PD],
   ];
 
-  // Pixel art number patterns (3x5 each)
   const NUM_PIXELS = {
+    0: [[1,1,1],[1,0,1],[1,0,1],[1,0,1],[1,1,1]],
     1: [[0,1,0],[1,1,0],[0,1,0],[0,1,0],[1,1,1]],
     2: [[1,1,0],[0,0,1],[0,1,0],[1,0,0],[1,1,1]],
     3: [[1,1,0],[0,0,1],[0,1,0],[0,0,1],[1,1,0]],
+    4: [[1,0,1],[1,0,1],[1,1,1],[0,0,1],[0,0,1]],
+    5: [[1,1,1],[1,0,0],[1,1,0],[0,0,1],[1,1,0]],
+    6: [[0,1,1],[1,0,0],[1,1,1],[1,0,1],[1,1,1]],
+    7: [[1,1,1],[0,0,1],[0,1,0],[0,1,0],[0,1,0]],
+    8: [[1,1,1],[1,0,1],[1,1,1],[1,0,1],[1,1,1]],
+    9: [[1,1,1],[1,0,1],[1,1,1],[0,0,1],[1,1,0]],
   };
 
   function makeDoorSVG(num) {
-    // Build door pixels with number overlay
     const px = [];
     for (let y = 0; y < DOOR_PIXELS.length; y++) {
       px.push(DOOR_PIXELS[y].slice());
     }
-    // Place number in center of door (at y=3..7, x=3..5)
-    const np = NUM_PIXELS[num];
-    if (np) {
+    const digits = String(num).split('').map(Number);
+    const digitWidth = digits.length * 4 - 1;
+    const startX = Math.floor((10 - digitWidth) / 2);
+    digits.forEach((d, di) => {
+      const np = NUM_PIXELS[d];
+      if (!np) return;
+      const ox = startX + di * 4;
       for (let ny = 0; ny < 5; ny++) {
         for (let nx = 0; nx < 3; nx++) {
-          if (np[ny][nx]) px[ny + 4][nx + 4] = PA;
+          if (np[ny][nx] && ox + nx >= 1 && ox + nx < 9) {
+            px[ny + 4][ox + nx] = PA;
+          }
         }
       }
-    }
+    });
     return pixelSVG(10, 14, px, PD);
   }
 
   const GOAT_SVG = pixelSVG(14, 14, GOAT_PIXELS, PD);
   const CAR_SVG = pixelSVG(11, 7, CAR_PIXELS, PA);
 
-  // ── Interactive game ──
+  // ── Configuration ──
 
-  const doors = document.querySelectorAll('.door');
+  const doorCountInput = document.getElementById('mh-door-count');
+  const trialCountInput = document.getElementById('mh-trial-count');
+  const doorsContainer = document.getElementById('monty-doors');
   const messageEl = document.getElementById('mh-message');
   const choiceEl = document.getElementById('mh-choice');
   const newBtn = document.getElementById('mh-new');
-  if (!doors.length || !messageEl) return;
+  const formulaEl = document.getElementById('mh-formula');
+  if (!doorsContainer || !messageEl) return;
 
+  let numDoors = parseInt(doorCountInput?.value) || 3;
+  let numTrials = parseInt(trialCountInput?.value) || 10000;
+
+  // ── Interactive game ──
+
+  let doors = [];
   let carDoor = -1;
   let picked = -1;
-  let revealed = -1;
-  let phase = 'pick'; // pick → reveal → decide → result
+  let revealedDoors = [];
+  let phase = 'pick';
 
-  // Game stats
   let gamesPlayed = 0;
   let switchWins = 0;
   let switchGames = 0;
@@ -127,10 +142,49 @@
     stPct: document.getElementById('mh-st-pct'),
   };
 
+  function buildDoors(n) {
+    doorsContainer.innerHTML = '';
+    doors = [];
+    // Scale door size based on count
+    const dw = Math.min(160, Math.max(70, Math.floor(560 / n)));
+    const dh = Math.round(dw * 1.375);
+    doorsContainer.style.setProperty('--door-w', dw + 'px');
+    doorsContainer.style.setProperty('--door-h', dh + 'px');
+    for (let i = 0; i < n; i++) {
+      const d = document.createElement('div');
+      d.className = 'door';
+      d.setAttribute('data-door', i);
+      d.innerHTML = '<div class="door-front"></div><div class="door-back"></div>';
+      d.addEventListener('click', () => {
+        if (phase !== 'pick') return;
+        picked = i;
+        d.classList.add('selected');
+        phase = 'reveal';
+        messageEl.textContent = 'you picked door ' + (i + 1) + '...';
+        setTimeout(revealGoats, 600);
+      });
+      doorsContainer.appendChild(d);
+      doors.push(d);
+    }
+  }
+
+  function updateFormula() {
+    if (!formulaEl) return;
+    if (numDoors === 3) {
+      formulaEl.textContent = 'P(win | switch) = 2/3 \u2003 P(win | stay) = 1/3';
+    } else {
+      const g = gcd(numDoors - 1, numDoors);
+      const sn = (numDoors - 1) / g;
+      const sd = numDoors / g;
+      formulaEl.textContent = 'P(win | switch) = ' + sn + '/' + sd +
+        ' \u2003 P(win | stay) = 1/' + numDoors;
+    }
+  }
+
   function newGame() {
-    carDoor = Math.floor(Math.random() * 3);
+    carDoor = Math.floor(Math.random() * numDoors);
     picked = -1;
-    revealed = -1;
+    revealedDoors = [];
     phase = 'pick';
     doors.forEach((d, i) => {
       d.classList.remove('opened', 'selected', 'highlighted', 'winner', 'loser');
@@ -142,28 +196,55 @@
     messageEl.className = 'game-message';
   }
 
-  function revealGoat() {
-    // Host reveals a door that is not picked and not the car
-    const options = [0, 1, 2].filter(d => d !== picked && d !== carDoor);
-    revealed = options[Math.floor(Math.random() * options.length)];
-    doors[revealed].classList.add('opened');
-    doors[revealed].querySelector('.door-back').innerHTML = GOAT_SVG;
-    phase = 'decide';
+  function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+    }
+  }
 
-    const remaining = [0, 1, 2].filter(d => d !== picked && d !== revealed)[0];
+  function revealGoats() {
+    // Host reveals N-2 goat doors, leaving your pick + 1 other door
+    const goatOptions = [];
+    for (let i = 0; i < numDoors; i++) {
+      if (i !== picked && i !== carDoor) goatOptions.push(i);
+    }
+    // If picked == car: goatOptions has N-1 entries, reveal N-2 (keep 1 random goat)
+    // If picked != car: goatOptions has N-2 entries, reveal all (car stays closed)
+    if (picked === carDoor) {
+      shuffle(goatOptions);
+      revealedDoors = goatOptions.slice(0, numDoors - 2);
+    } else {
+      revealedDoors = goatOptions.slice();
+    }
+
+    revealedDoors.forEach(idx => {
+      doors[idx].classList.add('opened');
+      doors[idx].querySelector('.door-back').innerHTML = GOAT_SVG;
+    });
+
+    phase = 'decide';
+    const remaining = findRemaining();
     doors[remaining].classList.add('highlighted');
 
-    messageEl.textContent = 'door ' + (revealed + 1) + ' has a goat. switch to door ' + (remaining + 1) + '?';
+    const revealedStr = revealedDoors.length === 1
+      ? 'door ' + (revealedDoors[0] + 1) + ' has a goat.'
+      : revealedDoors.length + ' doors opened \u2014 all goats.';
+    messageEl.textContent = revealedStr + ' switch to door ' + (remaining + 1) + '?';
     choiceEl.style.display = 'flex';
+  }
+
+  function findRemaining() {
+    for (let i = 0; i < numDoors; i++) {
+      if (i !== picked && revealedDoors.indexOf(i) === -1) return i;
+    }
+    return -1;
   }
 
   function resolve(didSwitch) {
     choiceEl.style.display = 'none';
-    const finalDoor = didSwitch
-      ? [0, 1, 2].filter(d => d !== picked && d !== revealed)[0]
-      : picked;
+    const finalDoor = didSwitch ? findRemaining() : picked;
 
-    // Open all doors
     doors.forEach((d, i) => {
       d.classList.remove('highlighted', 'selected');
       d.classList.add('opened');
@@ -189,7 +270,7 @@
 
     messageEl.textContent = won
       ? 'you ' + (didSwitch ? 'switched' : 'stayed') + ' and won!'
-      : 'you ' + (didSwitch ? 'switched' : 'stayed') + ' — goat';
+      : 'you ' + (didSwitch ? 'switched' : 'stayed') + ' \u2014 goat';
     messageEl.className = 'game-message' + (won ? '' : ' loss');
     phase = 'result';
     updateGameStats();
@@ -200,21 +281,10 @@
     statEls.swWins.textContent = switchWins;
     statEls.stWins.textContent = stayWins;
     statEls.swPct.textContent = switchGames > 0
-      ? (switchWins / switchGames * 100).toFixed(1) + '%' : '—';
+      ? (switchWins / switchGames * 100).toFixed(1) + '%' : '\u2014';
     statEls.stPct.textContent = stayGames > 0
-      ? (stayWins / stayGames * 100).toFixed(1) + '%' : '—';
+      ? (stayWins / stayGames * 100).toFixed(1) + '%' : '\u2014';
   }
-
-  doors.forEach(d => {
-    d.addEventListener('click', () => {
-      if (phase !== 'pick') return;
-      picked = parseInt(d.getAttribute('data-door'));
-      d.classList.add('selected');
-      phase = 'reveal';
-      messageEl.textContent = 'you picked door ' + (picked + 1) + '...';
-      setTimeout(revealGoat, 600);
-    });
-  });
 
   document.getElementById('mh-switch').addEventListener('click', () => {
     if (phase === 'decide') resolve(true);
@@ -224,6 +294,34 @@
   });
   newBtn.addEventListener('click', newGame);
 
+  // Door count change
+  if (doorCountInput) {
+    doorCountInput.addEventListener('change', () => {
+      const v = parseInt(doorCountInput.value);
+      if (v >= 3 && v <= 20) {
+        numDoors = v;
+        gamesPlayed = 0; switchWins = 0; switchGames = 0; stayWins = 0; stayGames = 0;
+        updateGameStats();
+        resetSim();
+        buildDoors(numDoors);
+        newGame();
+        updateFormula();
+        drawChart();
+        updateSimStats();
+      }
+    });
+  }
+
+  // Trial count change
+  if (trialCountInput) {
+    trialCountInput.addEventListener('change', () => {
+      const v = parseInt(trialCountInput.value);
+      if (v >= 100 && v <= 1000000) numTrials = v;
+    });
+  }
+
+  buildDoors(numDoors);
+  updateFormula();
   newGame();
 
   // ── Monte Carlo simulation ──
@@ -231,9 +329,9 @@
   const canvas = document.getElementById('mh-canvas');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
-  const W = canvas.width, H = canvas.height;
+  const CW = canvas.width, CH = canvas.height;
 
-  let simData = []; // [{trial, switchRate, stayRate}]
+  let simData = [];
   let totalTrials = 0;
   let totalSwitchWins = 0;
   let running = false;
@@ -244,12 +342,18 @@
     st: document.getElementById('mh-sim-st'),
   };
 
+  function resetSim() {
+    if (running) return;
+    totalTrials = 0;
+    totalSwitchWins = 0;
+    simData = [];
+  }
+
   function runBatch(n) {
+    const nd = numDoors;
     for (let i = 0; i < n; i++) {
-      const car = Math.floor(Math.random() * 3);
-      const pick = Math.floor(Math.random() * 3);
-      // Switch always goes to the remaining door (not picked, not revealed)
-      // Switching wins iff initial pick ≠ car
+      const car = Math.floor(Math.random() * nd);
+      const pick = Math.floor(Math.random() * nd);
       if (pick !== car) totalSwitchWins++;
       totalTrials++;
     }
@@ -263,15 +367,21 @@
     });
   }
 
+  function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
+
+  function fracLabel(num, den) {
+    const g = gcd(num, den);
+    return (num / g) + '/' + (den / g);
+  }
+
   function drawChart() {
     ctx.fillStyle = '#111';
-    ctx.fillRect(0, 0, W, H);
+    ctx.fillRect(0, 0, CW, CH);
 
     const pad = { top: 20, right: 20, bottom: 35, left: 50 };
-    const pw = W - pad.left - pad.right;
-    const ph = H - pad.top - pad.bottom;
+    const pw = CW - pad.left - pad.right;
+    const ph = CH - pad.top - pad.bottom;
 
-    // Axes
     ctx.strokeStyle = '#333';
     ctx.lineWidth = 1;
     ctx.beginPath();
@@ -280,7 +390,6 @@
     ctx.lineTo(pad.left + pw, pad.top + ph);
     ctx.stroke();
 
-    // Y-axis labels & grid
     ctx.fillStyle = '#555';
     ctx.font = '10px JetBrains Mono';
     ctx.textAlign = 'right';
@@ -294,43 +403,42 @@
       ctx.stroke();
     }
 
-    // Reference lines at 1/3 and 2/3
+    // Reference lines at 1/N and (N-1)/N
+    const stayTheory = 1 / numDoors;
+    const switchTheory = (numDoors - 1) / numDoors;
     ctx.setLineDash([4, 4]);
     ctx.strokeStyle = '#333';
-    const y13 = pad.top + ph - (1 / 3) * ph;
-    const y23 = pad.top + ph - (2 / 3) * ph;
+    const yStay = pad.top + ph - stayTheory * ph;
+    const ySwitch = pad.top + ph - switchTheory * ph;
     ctx.beginPath();
-    ctx.moveTo(pad.left, y13);
-    ctx.lineTo(pad.left + pw, y13);
+    ctx.moveTo(pad.left, yStay);
+    ctx.lineTo(pad.left + pw, yStay);
     ctx.stroke();
     ctx.beginPath();
-    ctx.moveTo(pad.left, y23);
-    ctx.lineTo(pad.left + pw, y23);
+    ctx.moveTo(pad.left, ySwitch);
+    ctx.lineTo(pad.left + pw, ySwitch);
     ctx.stroke();
     ctx.setLineDash([]);
 
     ctx.fillStyle = '#444';
     ctx.textAlign = 'left';
-    ctx.fillText('2/3', pad.left + 4, y23 - 4);
-    ctx.fillText('1/3', pad.left + 4, y13 - 4);
+    ctx.fillText(fracLabel(numDoors - 1, numDoors), pad.left + 4, ySwitch - 4);
+    ctx.fillText(fracLabel(1, numDoors), pad.left + 4, yStay - 4);
 
-    // X-axis label
     ctx.textAlign = 'center';
     ctx.fillStyle = '#555';
-    ctx.fillText('trials', pad.left + pw / 2, H - 5);
+    ctx.fillText('trials', pad.left + pw / 2, CH - 5);
 
     if (simData.length < 2) {
-      // Empty state
       ctx.fillStyle = '#333';
       ctx.font = '11px JetBrains Mono';
       ctx.textAlign = 'center';
-      ctx.fillText('click "run 10,000 trials" to simulate', pad.left + pw / 2, pad.top + ph / 2);
+      ctx.fillText('click "run" to simulate', pad.left + pw / 2, pad.top + ph / 2);
       return;
     }
 
     const maxTrial = simData[simData.length - 1].trial;
 
-    // X-axis tick labels
     ctx.fillStyle = '#555';
     ctx.font = '10px JetBrains Mono';
     ctx.textAlign = 'center';
@@ -340,7 +448,6 @@
       ctx.fillText(shortNum(t), x, pad.top + ph + 15);
     }
 
-    // Switch line (accent)
     ctx.beginPath();
     ctx.strokeStyle = '#00d4aa';
     ctx.lineWidth = 2;
@@ -352,7 +459,6 @@
     }
     ctx.stroke();
 
-    // Stay line (red)
     ctx.beginPath();
     ctx.strokeStyle = '#e84057';
     ctx.lineWidth = 2;
@@ -364,7 +470,6 @@
     }
     ctx.stroke();
 
-    // Legend
     ctx.lineWidth = 1;
     const lx = pad.left + pw - 100;
     const ly = pad.top + 10;
@@ -404,8 +509,8 @@
       simEls.sw.textContent = (totalSwitchWins / totalTrials * 100).toFixed(2) + '%';
       simEls.st.textContent = ((1 - totalSwitchWins / totalTrials) * 100).toFixed(2) + '%';
     } else {
-      simEls.sw.textContent = '—';
-      simEls.st.textContent = '—';
+      simEls.sw.textContent = '\u2014';
+      simEls.st.textContent = '\u2014';
     }
   }
 
@@ -413,9 +518,9 @@
     if (running) return;
     running = true;
 
-    const target = totalTrials + 10000;
-    const batchSize = 200;
-    const sampleEvery = 200;
+    const target = totalTrials + numTrials;
+    const batchSize = Math.max(50, Math.floor(numTrials / 50));
+    const sampleEvery = batchSize;
 
     function step() {
       runBatch(batchSize);
@@ -436,9 +541,7 @@
 
   document.getElementById('mh-reset').addEventListener('click', () => {
     if (running) return;
-    totalTrials = 0;
-    totalSwitchWins = 0;
-    simData = [];
+    resetSim();
     drawChart();
     updateSimStats();
   });
