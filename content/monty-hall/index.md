@@ -1,13 +1,16 @@
 ---
 title: "monty hall"
 subtitle: "should you switch doors?"
-js: "monty-hall.js"
+js: "monty-hall.ts"
 ---
 
 <div class="explanation">
   <p>You're on a game show. Three doors — behind one is a car, behind the other two are goats. You pick a door. The host, who knows what's behind each door, opens another door to reveal a goat. Should you <strong>switch</strong> to the remaining door?</p>
   <p class="formula" id="mh-formula">P(win | switch) = 2/3 &emsp; P(win | stay) = 1/3</p>
   <p>Counterintuitively, switching doubles your odds. Your initial pick had a 1/3 chance of being right — the host's reveal doesn't change that. The remaining door absorbs the full 2/3 probability. Play the game below, then run the simulation to watch the numbers converge.</p>
+  <p class="formula">references</p>
+  <p>Selvin. "A problem in probability." <em>The American Statistician</em>, 1975.</p>
+  <p>Rosenhouse. "The Monty Hall Problem." <em>Oxford University Press</em>, 2009.</p>
 </div>
 
 <div class="data-indicator live"><span class="dot"></span> interactive</div>
