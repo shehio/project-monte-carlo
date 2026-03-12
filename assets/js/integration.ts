@@ -1,45 +1,39 @@
-(() => {
-  const canvas = document.getElementById('int-canvas');
+export {};
+
+function main() {
+  const canvas = document.getElementById('int-canvas') as HTMLCanvasElement;
   if (!canvas) return;
-  const ctx = canvas.getContext('2d');
+  const ctx = canvas.getContext('2d')!;
   const W = canvas.width, H = canvas.height;
 
-  const FUNCTIONS = {
-    sin: {
-      fn: x => Math.sin(x),
-      range: [0, Math.PI],
-      yMax: 1.0,
-      exact: 2.0,
-    },
-    gaussian: {
-      fn: x => Math.exp(-(x * x)),
-      range: [0, 2],
-      yMax: 1.0,
-      exact: 0.882081,
-    },
-    quadratic: {
-      fn: x => x * x,
-      range: [0, 1],
-      yMax: 1.0,
-      exact: 1 / 3,
-    },
+  interface FnSpec {
+    fn: (x: number) => number;
+    range: [number, number];
+    yMax: number;
+    exact: number;
+  }
+
+  const FUNCTIONS: Record<string, FnSpec> = {
+    sin: { fn: x => Math.sin(x), range: [0, Math.PI], yMax: 1.0, exact: 2.0 },
+    gaussian: { fn: x => Math.exp(-(x * x)), range: [0, 2], yMax: 1.0, exact: 0.882081 },
+    quadratic: { fn: x => x * x, range: [0, 1], yMax: 1.0, exact: 1 / 3 },
   };
 
-  let total = 0, under = 0, running = false, animId = null;
+  let total = 0, under = 0, running = false, animId = 0;
   let currentFn = 'sin';
 
   const els = {
-    estimate: document.getElementById('int-estimate'),
-    exact: document.getElementById('int-exact'),
-    count: document.getElementById('int-count'),
-    error: document.getElementById('int-error'),
-    speed: document.getElementById('int-speed'),
-    start: document.getElementById('int-start'),
-    fnSelect: document.getElementById('fn-select'),
+    estimate: document.getElementById('int-estimate')!,
+    exact: document.getElementById('int-exact')!,
+    count: document.getElementById('int-count')!,
+    error: document.getElementById('int-error')!,
+    speed: document.getElementById('int-speed') as HTMLInputElement,
+    start: document.getElementById('int-start')!,
+    fnSelect: document.getElementById('fn-select') as HTMLSelectElement,
     indicator: document.getElementById('int-indicator'),
   };
 
-  function getSpec() { return FUNCTIONS[currentFn]; }
+  function getSpec(): FnSpec { return FUNCTIONS[currentFn]; }
 
   function drawCurve() {
     ctx.fillStyle = '#111';
@@ -51,7 +45,6 @@
     const plotW = W - pad;
     const plotH = H - pad;
 
-    // axis
     ctx.strokeStyle = '#333';
     ctx.lineWidth = 1;
     ctx.beginPath();
@@ -60,14 +53,12 @@
     ctx.lineTo(W, plotH);
     ctx.stroke();
 
-    // labels
     ctx.fillStyle = '#555';
     ctx.font = '10px JetBrains Mono';
     ctx.textAlign = 'center';
     ctx.fillText(a.toFixed(1), pad, H - 5);
     ctx.fillText(b.toFixed(1), W - 5, H - 5);
 
-    // draw function curve
     ctx.beginPath();
     ctx.strokeStyle = '#00d4aa';
     ctx.lineWidth = 2;
@@ -135,10 +126,10 @@
     under = 0;
     els.start.textContent = 'start';
     els.start.classList.remove('active');
-    els.estimate.textContent = '—';
+    els.estimate.textContent = '\u2014';
     els.exact.textContent = getSpec().exact.toFixed(6);
     els.count.textContent = '0';
-    els.error.textContent = '—';
+    els.error.textContent = '\u2014';
     drawCurve();
   }
 
@@ -155,15 +146,14 @@
     }
   });
 
-  document.getElementById('int-reset').addEventListener('click', reset);
+  document.getElementById('int-reset')!.addEventListener('click', reset);
 
   drawCurve();
   els.exact.textContent = getSpec().exact.toFixed(6);
 
-  // load pre-computed data
   fetch('/data/integration.json')
     .then(r => r.json())
-    .then(data => {
+    .then((data: Record<string, { estimate: number; exact: number; total: number; error: number }>) => {
       const fnData = data[currentFn];
       if (fnData) {
         els.estimate.textContent = fnData.estimate.toFixed(6);
@@ -172,9 +162,11 @@
         els.error.textContent = fnData.error.toFixed(6);
         if (els.indicator) {
           els.indicator.className = 'data-indicator precomputed';
-          els.indicator.innerHTML = '<span class="dot"></span>pre-computed · ' + fnData.total.toLocaleString() + ' points';
+          els.indicator.innerHTML = '<span class="dot"></span>pre-computed \u00b7 ' + fnData.total.toLocaleString() + ' points';
         }
       }
     })
     .catch(() => {});
-})();
+}
+
+main();
