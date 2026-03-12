@@ -1,142 +1,40 @@
-(() => {
-  const SUITS = ['\u2660', '\u2665', '\u2666', '\u2663'];
-  const RANKS = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
-  const RED_SUITS = new Set(['\u2665', '\u2666']);
+import { Card, createShoe, cardValue, handTotal, isBlackjack, canSplit, hiLoValue, renderHand } from './lib/cards';
+
+function main() {
   const NUM_DECKS = 6;
   const RESHUFFLE_AT = 78;
 
-  // ── shoe ──
-
-  function createShoe() {
-    const cards = [];
-    for (let d = 0; d < NUM_DECKS; d++)
-      for (const suit of SUITS)
-        for (const rank of RANKS)
-          cards.push({ rank, suit });
-    shuffle(cards);
-    return cards;
-  }
-
-  function shuffle(arr) {
-    for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [arr[i], arr[j]] = [arr[j], arr[i]];
-    }
-  }
-
-  // ── hand logic ──
-
-  function cardValue(card) {
-    if (card.rank === 'A') return 11;
-    if ('JQK'.includes(card.rank)) return 10;
-    return parseInt(card.rank);
-  }
-
-  function handTotal(cards) {
-    let total = 0, aces = 0;
-    for (const c of cards) {
-      total += cardValue(c);
-      if (c.rank === 'A') aces++;
-    }
-    while (total > 21 && aces > 0) { total -= 10; aces--; }
-    return total;
-  }
-
-  function isSoft(cards) {
-    let total = 0, aces = 0;
-    for (const c of cards) {
-      total += cardValue(c);
-      if (c.rank === 'A') aces++;
-    }
-    while (total > 21 && aces > 0) { total -= 10; aces--; }
-    return aces > 0 && total <= 21;
-  }
-
-  function isBlackjack(cards) {
-    return cards.length === 2 && handTotal(cards) === 21;
-  }
-
-  function canSplit(cards) {
-    return cards.length === 2 && cardValue(cards[0]) === cardValue(cards[1]);
-  }
-
-  // ── hi-lo ──
-
-  function hiLoValue(card) {
-    const v = cardValue(card);
-    if (card.rank === 'A' || v === 10) return -1;
-    if (v >= 2 && v <= 6) return 1;
-    return 0;
-  }
-
-  // ── rendering ──
-
-  function renderCard(card, faceDown) {
-    const el = document.createElement('div');
-    el.className = 'playing-card';
-
-    if (faceDown) {
-      el.classList.add('face-down');
-      return el;
-    }
-
-    if (RED_SUITS.has(card.suit)) el.classList.add('red');
-
-    const top = document.createElement('div');
-    top.className = 'rank-suit';
-    top.textContent = card.rank + card.suit;
-
-    const center = document.createElement('div');
-    center.className = 'center-suit';
-    center.textContent = card.suit;
-
-    const bottom = document.createElement('div');
-    bottom.className = 'rank-suit-flip';
-    bottom.textContent = card.rank + card.suit;
-
-    el.append(top, center, bottom);
-    return el;
-  }
-
-  function renderHand(containerId, cards, hideFirst) {
-    const container = document.getElementById(containerId);
-    container.innerHTML = '';
-    cards.forEach((c, i) => container.appendChild(renderCard(c, hideFirst && i === 0)));
-  }
-
-  // ── state ──
-
-  let shoe = createShoe();
+  let shoe = createShoe(NUM_DECKS);
   let bankroll = 1000;
   let bet = 0;
-  let playerHands = [];
+  let playerHands: { cards: Card[]; bet: number }[] = [];
   let activeHandIdx = 0;
-  let dealerHand = [];
+  let dealerHand: Card[] = [];
   let runningCount = 0;
-  let phase = 'betting'; // betting | playing | dealer | done
+  let phase: 'betting' | 'playing' | 'dealer' | 'done' = 'betting';
 
   const dom = {
-    dealerCards: document.getElementById('dealer-cards'),
-    dealerTotal: document.getElementById('dealer-total'),
-    playerCards: document.getElementById('player-cards'),
-    playerTotal: document.getElementById('player-total'),
-    bankroll: document.getElementById('bankroll'),
-    currentBet: document.getElementById('current-bet'),
-    runningCount: document.getElementById('running-count'),
-    betControls: document.getElementById('bet-controls'),
-    actionControls: document.getElementById('action-controls'),
-    betInput: document.getElementById('bet-input'),
-    message: document.getElementById('message'),
-    hitBtn: document.getElementById('hit-btn'),
-    standBtn: document.getElementById('stand-btn'),
-    doubleBtn: document.getElementById('double-btn'),
-    splitBtn: document.getElementById('split-btn'),
+    dealerCards: document.getElementById('dealer-cards')!,
+    dealerTotal: document.getElementById('dealer-total')!,
+    playerCards: document.getElementById('player-cards')!,
+    playerTotal: document.getElementById('player-total')!,
+    bankroll: document.getElementById('bankroll')!,
+    currentBet: document.getElementById('current-bet')!,
+    runningCount: document.getElementById('running-count')!,
+    betControls: document.getElementById('bet-controls')!,
+    actionControls: document.getElementById('action-controls')!,
+    betInput: document.getElementById('bet-input') as HTMLInputElement,
+    message: document.getElementById('message')!,
+    hitBtn: document.getElementById('hit-btn') as HTMLButtonElement,
+    standBtn: document.getElementById('stand-btn') as HTMLButtonElement,
+    doubleBtn: document.getElementById('double-btn') as HTMLButtonElement,
+    splitBtn: document.getElementById('split-btn') as HTMLButtonElement,
   };
 
-  function draw() {
-    const c = shoe.pop();
+  function draw(): Card {
+    const c = shoe.pop()!;
     runningCount += hiLoValue(c);
-    dom.runningCount.textContent = runningCount;
+    dom.runningCount.textContent = String(runningCount);
     return c;
   }
 
@@ -147,15 +45,15 @@
     if (playerHands.length > 0) {
       const hand = playerHands[activeHandIdx];
       renderHand('player-cards', hand.cards, false);
-      dom.playerTotal.textContent = handTotal(hand.cards);
+      dom.playerTotal.textContent = String(handTotal(hand.cards));
     }
 
     if (dealerHand.length > 0) {
       const hideHole = phase === 'playing';
       renderHand('dealer-cards', dealerHand, hideHole);
       dom.dealerTotal.textContent = hideHole
-        ? cardValue(dealerHand[1])
-        : handTotal(dealerHand);
+        ? String(cardValue(dealerHand[1]))
+        : String(handTotal(dealerHand));
     }
 
     dom.betControls.style.display = phase === 'betting' ? 'flex' : 'none';
@@ -168,12 +66,10 @@
     }
   }
 
-  function setMessage(text, isLoss) {
+  function setMessage(text: string, isLoss?: boolean) {
     dom.message.textContent = text;
     dom.message.className = isLoss ? 'loss' : '';
   }
-
-  // ── game flow ──
 
   function deal() {
     const b = parseInt(dom.betInput.value);
@@ -183,7 +79,7 @@
     }
 
     if (shoe.length < RESHUFFLE_AT) {
-      shoe = createShoe();
+      shoe = createShoe(NUM_DECKS);
       runningCount = 0;
       dom.runningCount.textContent = '0';
     }
@@ -201,11 +97,10 @@
     phase = 'playing';
     updateDisplay();
 
-    // natural blackjack
     if (isBlackjack(playerHands[0].cards)) {
       phase = 'done';
       renderHand('dealer-cards', dealerHand, false);
-      dom.dealerTotal.textContent = handTotal(dealerHand);
+      dom.dealerTotal.textContent = String(handTotal(dealerHand));
       if (isBlackjack(dealerHand)) {
         bankroll += bet;
         setMessage('push');
@@ -256,7 +151,7 @@
 
   function split() {
     const hand = playerHands[activeHandIdx];
-    const splitCard = hand.cards.pop();
+    const splitCard = hand.cards.pop()!;
     bankroll -= hand.bet;
 
     hand.cards.push(draw());
@@ -266,7 +161,7 @@
     updateDisplay();
   }
 
-  function advanceHand() {
+  function advanceHand(): boolean {
     if (activeHandIdx < playerHands.length - 1) {
       activeHandIdx++;
       updateDisplay();
@@ -278,14 +173,14 @@
   function dealerPlay() {
     phase = 'dealer';
     renderHand('dealer-cards', dealerHand, false);
-    dom.dealerTotal.textContent = handTotal(dealerHand);
+    dom.dealerTotal.textContent = String(handTotal(dealerHand));
     dom.actionControls.style.display = 'none';
 
     function dealerStep() {
       if (handTotal(dealerHand) < 17) {
         dealerHand.push(draw());
         renderHand('dealer-cards', dealerHand, false);
-        dom.dealerTotal.textContent = handTotal(dealerHand);
+        dom.dealerTotal.textContent = String(handTotal(dealerHand));
         setTimeout(dealerStep, 300);
       } else {
         resolveHands();
@@ -298,8 +193,7 @@
   function resolveHands() {
     const dealerT = handTotal(dealerHand);
     const dealerBust = dealerT > 21;
-    let totalWin = 0;
-    let msg = [];
+    const msg: string[] = [];
 
     for (const hand of playerHands) {
       const playerT = handTotal(hand.cards);
@@ -307,7 +201,6 @@
         msg.push('bust');
       } else if (dealerBust || playerT > dealerT) {
         bankroll += hand.bet * 2;
-        totalWin += hand.bet;
         msg.push('win');
       } else if (playerT === dealerT) {
         bankroll += hand.bet;
@@ -318,29 +211,29 @@
     }
 
     const isLoss = msg.every(m => m === 'bust' || m === 'lose');
-    setMessage(msg.join(' · '), isLoss);
+    setMessage(msg.join(' \u00b7 '), isLoss);
     finishRound();
   }
 
   function finishRound() {
     phase = 'betting';
     renderHand('dealer-cards', dealerHand, false);
-    dom.dealerTotal.textContent = handTotal(dealerHand);
+    dom.dealerTotal.textContent = String(handTotal(dealerHand));
     updateDisplay();
 
     if (bankroll <= 0) {
-      setMessage('bankrupt — refresh to restart', true);
+      setMessage('bankrupt \u2014 refresh to restart', true);
       dom.betControls.style.display = 'none';
     }
   }
 
-  // ── events ──
-
-  document.getElementById('deal-btn').addEventListener('click', deal);
+  document.getElementById('deal-btn')!.addEventListener('click', deal);
   dom.hitBtn.addEventListener('click', hit);
   dom.standBtn.addEventListener('click', stand);
   dom.doubleBtn.addEventListener('click', doubleDown);
   dom.splitBtn.addEventListener('click', split);
 
   updateDisplay();
-})();
+}
+
+main();
