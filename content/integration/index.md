@@ -1,13 +1,16 @@
 ---
 title: "integration"
 subtitle: "monte carlo area estimation"
-js: "integration.js"
+js: "integration.ts"
 ---
 
 <div class="explanation">
   <p>Estimate <code>∫f(x)dx</code> by throwing random points into a bounding box. The fraction landing under the curve times the box area approximates the integral.</p>
   <p class="formula">∫f(x)dx ≈ (points under curve / total points) × box area</p>
   <p>MC integration scales to arbitrary dimensions where deterministic methods fail — this is why it powers physics simulations and financial models.</p>
+  <p class="formula">references</p>
+  <p>Caflisch. "Monte Carlo and quasi-Monte Carlo methods." <em>Acta Numerica</em>, 1998.</p>
+  <p>Dick et al. "High-dimensional integration: the quasi-Monte Carlo way." <em>Acta Numerica</em>, 2013.</p>
 </div>
 
 <div id="int-indicator" class="data-indicator live"><span class="dot"></span>live simulation</div>

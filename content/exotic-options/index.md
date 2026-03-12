@@ -1,13 +1,16 @@
 ---
 title: "exotic options"
 subtitle: "asian · barrier · lookback"
-js: "exotic-options.js"
+js: "exotic-options.ts"
 ---
 
 <div class="explanation">
   <p>Exotic options have path-dependent payoffs — their value depends on the <em>entire</em> price history, not just the final price. No closed-form solutions exist, making Monte Carlo the primary pricing method.</p>
   <p class="formula">Asian: payoff = max(avg(S) − K, 0) · Barrier: knocked out if S hits B · Lookback: payoff = S_T − min(S)</p>
   <p>Asian options smooth out manipulation risk. Barrier options are cheaper than vanilla. Lookback options give perfect hindsight — and cost accordingly.</p>
+  <p class="formula">references</p>
+  <p>Broadie & Glasserman. "Estimating security price derivatives using simulation." <em>Management Science</em>, 1996.</p>
+  <p>Bouchard & Warin. "Monte Carlo valuation of American options." <em>Mathematical Finance</em>, 2012.</p>
 </div>
 
 <div id="exotic-indicator" class="data-indicator live"><span class="dot"></span>live simulation</div>

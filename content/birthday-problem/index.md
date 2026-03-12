@@ -1,13 +1,16 @@
 ---
 title: "birthday problem"
 subtitle: "probability of shared birthdays"
-js: "birthday-problem.js"
+js: "birthday-problem.ts"
 ---
 
 <div class="explanation">
   <p>In a room of n people, the probability of at least two sharing a birthday is surprisingly high. With just 23 people, it's over 50%.</p>
   <p class="formula">P(match) = 1 − 365!/(365ⁿ · (365−n)!)</p>
   <p>This counterintuitive result illustrates the birthday paradox — the number of possible pairs grows as <code>n(n−1)/2</code>, much faster than n itself.</p>
+  <p class="formula">references</p>
+  <p>DasGupta. "The matching, birthday and strong birthday problem: a contemporary review." <em>Journal of Statistical Planning and Inference</em>, 2005.</p>
+  <p>Wendl. "Collision probability between sets of random variables." <em>Statistics & Probability Letters</em>, 2003.</p>
 </div>
 
 <div id="bday-indicator" class="data-indicator live"><span class="dot"></span>live simulation</div>
