@@ -1,21 +1,21 @@
-(() => {
+export {};
+
+function main() {
   'use strict';
 
-  const RED_NUMS = new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
-  function colorOf(n) {
+  const RED_NUMS = new Set([1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36]);
+  function colorOf(n: number): 'green' | 'red' | 'black' {
     if (n === 0) return 'green';
     return RED_NUMS.has(n) ? 'red' : 'black';
   }
 
-  // ── Interactive game ──
-
-  const history = [];
-  const resultEl = document.getElementById('rl-result');
-  const historyEl = document.getElementById('rl-history');
-  const streakEl = document.getElementById('rl-streak');
+  const history: number[] = [];
+  const resultEl = document.getElementById('rl-result')!;
+  const historyEl = document.getElementById('rl-history')!;
+  const streakEl = document.getElementById('rl-streak')!;
   if (!resultEl) return;
 
-  function doSpins(count) {
+  function doSpins(count: number) {
     for (let i = 0; i < count; i++) {
       history.push(Math.floor(Math.random() * 37));
     }
@@ -27,7 +27,7 @@
 
   function renderResult() {
     const last = history[history.length - 1];
-    resultEl.textContent = last;
+    resultEl.textContent = String(last);
     resultEl.className = 'rl-result rl-' + colorOf(last);
   }
 
@@ -51,14 +51,14 @@
   }
 
   const statEls = {
-    spins: document.getElementById('rl-spins'),
-    red: document.getElementById('rl-red-pct'),
-    black: document.getElementById('rl-black-pct'),
+    spins: document.getElementById('rl-spins')!,
+    red: document.getElementById('rl-red-pct')!,
+    black: document.getElementById('rl-black-pct')!,
   };
 
   function updateStats() {
     const n = history.length;
-    statEls.spins.textContent = n;
+    statEls.spins.textContent = String(n);
     if (n === 0) { statEls.red.textContent = '\u2014'; statEls.black.textContent = '\u2014'; return; }
     const reds = history.filter(x => RED_NUMS.has(x)).length;
     const blacks = history.filter(x => x > 0 && !RED_NUMS.has(x)).length;
@@ -66,23 +66,22 @@
     statEls.black.textContent = (blacks / n * 100).toFixed(1) + '%';
   }
 
-  document.getElementById('rl-spin').addEventListener('click', () => doSpins(1));
-  document.getElementById('rl-spin10').addEventListener('click', () => doSpins(10));
-  document.getElementById('rl-spin100').addEventListener('click', () => doSpins(100));
+  document.getElementById('rl-spin')!.addEventListener('click', () => doSpins(1));
+  document.getElementById('rl-spin10')!.addEventListener('click', () => doSpins(10));
+  document.getElementById('rl-spin100')!.addEventListener('click', () => doSpins(100));
 
-  // ── Fallacy simulation ──
-
-  const canvas = document.getElementById('rl-canvas');
+  // Fallacy simulation
+  const canvas = document.getElementById('rl-canvas') as HTMLCanvasElement;
   if (!canvas) return;
-  const ctx = canvas.getContext('2d');
+  const ctx = canvas.getContext('2d')!;
   const CW = canvas.width, CH = canvas.height;
 
-  let simResult = null;
-  const simSpinsEl = document.getElementById('rl-sim-spins');
-  const simCountInput = document.getElementById('rl-sim-count');
+  let simResult: Record<number, { reds: number; total: number }> | null = null;
+  const simSpinsEl = document.getElementById('rl-sim-spins')!;
+  const simCountInput = document.getElementById('rl-sim-count') as HTMLInputElement | null;
 
-  function runFallacySim(N) {
-    const buckets = {};
+  function runFallacySim(N: number): Record<number, { reds: number; total: number }> {
+    const buckets: Record<number, { reds: number; total: number }> = {};
     for (let k = 1; k <= 5; k++) buckets[k] = { reds: 0, total: 0 };
     let redStreak = 0;
 
@@ -110,7 +109,6 @@
     const pw = CW - pad.left - pad.right;
     const ph = CH - pad.top - pad.bottom;
 
-    // Axes
     ctx.strokeStyle = '#333';
     ctx.lineWidth = 1;
     ctx.beginPath();
@@ -119,7 +117,6 @@
     ctx.lineTo(pad.left + pw, pad.top + ph);
     ctx.stroke();
 
-    // Y labels
     ctx.fillStyle = '#555';
     ctx.font = '10px JetBrains Mono';
     ctx.textAlign = 'right';
@@ -133,7 +130,6 @@
       ctx.stroke();
     }
 
-    // Reference line at 18/37
     const theory = 18 / 37;
     ctx.setLineDash([4, 4]);
     ctx.strokeStyle = '#555';
@@ -155,7 +151,6 @@
       return;
     }
 
-    // Bars
     const labels = ['1', '2', '3', '4', '5+'];
     const barW = Math.min(60, pw / labels.length - 20);
     const gap = (pw - barW * labels.length) / (labels.length + 1);
@@ -191,18 +186,20 @@
     ctx.fillText('streak of K reds \u2192 P(next is red)', pad.left + pw / 2, CH - 3);
   }
 
-  document.getElementById('rl-run').addEventListener('click', () => {
-    const n = parseInt(simCountInput?.value) || 100000;
+  document.getElementById('rl-run')!.addEventListener('click', () => {
+    const n = parseInt(simCountInput?.value ?? '100000') || 100000;
     simResult = runFallacySim(n);
     simSpinsEl.textContent = n.toLocaleString();
     drawChart();
   });
 
-  document.getElementById('rl-reset').addEventListener('click', () => {
+  document.getElementById('rl-reset')!.addEventListener('click', () => {
     simResult = null;
     simSpinsEl.textContent = '0';
     drawChart();
   });
 
   drawChart();
-})();
+}
+
+main();
