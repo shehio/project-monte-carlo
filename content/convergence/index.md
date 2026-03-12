@@ -1,13 +1,16 @@
 ---
 title: "convergence"
 subtitle: "central limit theorem in action"
-js: "convergence.js"
+js: "convergence.ts"
 ---
 
 <div class="explanation">
   <p>The Central Limit Theorem: the mean of n independent samples approaches a normal distribution as n grows — regardless of the source distribution's shape.</p>
   <p class="formula">σ_means = σ_source / √n</p>
   <p>This is why confidence intervals and hypothesis tests work. The spread of sample means shrinks predictably as <code>1/√n</code>, making estimation more precise with larger samples.</p>
+  <p class="formula">references</p>
+  <p>Fischer. "A History of the Central Limit Theorem." <em>Springer</em>, 2011.</p>
+  <p>Le Cam. "The Central Limit Theorem around 1935." <em>Statistical Science</em>, 1986.</p>
 </div>
 
 <div id="clt-indicator" class="data-indicator live"><span class="dot"></span>live simulation</div>
