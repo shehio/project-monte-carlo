@@ -1,7 +1,7 @@
 ---
 title: "go"
 subtitle: "9×9 · chinese scoring · komi 5.5"
-js: ["mcts.js", "go.js"]
+js: "go.ts"
 ---
 
 <div class="explanation">
@@ -9,6 +9,9 @@ js: ["mcts.js", "go.js"]
   <p>The AI uses <strong>UCB1 selection</strong> with random rollouts to completion. A "don't fill own eyes" heuristic keeps rollouts from self-destructing. With ~5,000 iterations per move, it plays at a weak-intermediate level on the 9×9 board.</p>
   <p class="formula">UCB1(i) = w̄ᵢ + c · √(ln N / nᵢ)</p>
   <p>Chinese area scoring: each player's score = own stones on the board + empty points surrounded entirely by own stones. White receives 5.5 points komi to compensate for black's first-move advantage.</p>
+  <p class="formula">references</p>
+  <p>Silver et al. "Mastering the game of Go with deep neural networks and tree search." <em>Nature</em>, 2016.</p>
+  <p>Gelly & Silver. "Combining online and offline knowledge in UCT." <em>ICML</em>, 2007.</p>
 </div>
 
 <div class="data-indicator live"><span class="dot"></span> live · mcts</div>
