@@ -1,61 +1,31 @@
-(() => {
-  const pathsCanvas = document.getElementById('paths-canvas');
-  const distCanvas = document.getElementById('dist-canvas');
+import { blackScholes, simulatePath } from './lib/finance';
+
+function main() {
+  const pathsCanvas = document.getElementById('paths-canvas') as HTMLCanvasElement;
+  const distCanvas = document.getElementById('dist-canvas') as HTMLCanvasElement;
   if (!pathsCanvas || !distCanvas) return;
 
-  const pathsCtx = pathsCanvas.getContext('2d');
-  const distCtx = distCanvas.getContext('2d');
+  const pathsCtx = pathsCanvas.getContext('2d')!;
+  const distCtx = distCanvas.getContext('2d')!;
   const W = pathsCanvas.width, H = pathsCanvas.height;
 
-  let paths = [], terminals = [], running = false, animId = null;
+  let paths: number[][] = [], terminals: number[] = [], running = false, animId = 0;
 
   const els = {
-    spot: document.getElementById('spot'),
-    strike: document.getElementById('strike'),
-    vol: document.getElementById('vol'),
-    maturity: document.getElementById('maturity'),
-    mcPrice: document.getElementById('mc-price'),
-    bsPrice: document.getElementById('bs-price'),
-    pathCount: document.getElementById('path-count'),
-    run: document.getElementById('price-run'),
+    spot: document.getElementById('spot') as HTMLInputElement,
+    strike: document.getElementById('strike') as HTMLInputElement,
+    vol: document.getElementById('vol') as HTMLInputElement,
+    maturity: document.getElementById('maturity') as HTMLInputElement,
+    mcPrice: document.getElementById('mc-price')!,
+    bsPrice: document.getElementById('bs-price')!,
+    pathCount: document.getElementById('path-count')!,
+    run: document.getElementById('price-run')!,
     indicator: document.getElementById('option-indicator'),
   };
 
-  function gaussRandom() {
-    let u, v, s;
-    do { u = Math.random() * 2 - 1; v = Math.random() * 2 - 1; s = u * u + v * v; }
-    while (s >= 1 || s === 0);
-    return u * Math.sqrt(-2 * Math.log(s) / s);
-  }
+  interface Params { S0: number; K: number; sigma: number; T: number; r: number; steps: number; }
 
-  function normalCDF(x) {
-    const a1 = 0.254829592, a2 = -0.284496736, a3 = 1.421413741;
-    const a4 = -1.453152027, a5 = 1.061405429, p = 0.3275911;
-    const sign = x < 0 ? -1 : 1;
-    const ax = Math.abs(x) / Math.sqrt(2);
-    const t = 1 / (1 + p * ax);
-    const y = 1 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-ax * ax);
-    return 0.5 * (1 + sign * y);
-  }
-
-  function blackScholes(S, K, T, r, sigma) {
-    const d1 = (Math.log(S / K) + (r + sigma * sigma / 2) * T) / (sigma * Math.sqrt(T));
-    const d2 = d1 - sigma * Math.sqrt(T);
-    return S * normalCDF(d1) - K * Math.exp(-r * T) * normalCDF(d2);
-  }
-
-  function simulatePath(S0, r, sigma, T, steps) {
-    const dt = T / steps;
-    const path = [S0];
-    for (let i = 0; i < steps; i++) {
-      const dW = gaussRandom() * Math.sqrt(dt);
-      const S = path[path.length - 1] * Math.exp((r - 0.5 * sigma * sigma) * dt + sigma * dW);
-      path.push(S);
-    }
-    return path;
-  }
-
-  function getParams() {
+  function getParams(): Params {
     return {
       S0: parseFloat(els.spot.value),
       K: parseFloat(els.strike.value),
@@ -73,7 +43,6 @@
 
     if (paths.length === 0) return;
 
-    const maxT = p.T;
     let minS = Infinity, maxS = -Infinity;
     for (const path of paths) {
       for (const s of path) {
@@ -84,7 +53,6 @@
     minS *= 0.95;
     maxS *= 1.05;
 
-    // strike line
     const strikeY = H - ((p.K - minS) / (maxS - minS)) * H;
     pathsCtx.strokeStyle = '#333';
     pathsCtx.setLineDash([4, 4]);
@@ -94,12 +62,10 @@
     pathsCtx.stroke();
     pathsCtx.setLineDash([]);
 
-    // strike label
     pathsCtx.fillStyle = '#555';
     pathsCtx.font = '10px JetBrains Mono';
     pathsCtx.fillText('K=' + p.K, 4, strikeY - 4);
 
-    // paths
     for (const path of paths) {
       const finalS = path[path.length - 1];
       const itm = finalS > p.K;
@@ -132,7 +98,7 @@
     hi *= 1.05;
 
     const binW = (hi - lo) / bins;
-    const counts = new Array(bins).fill(0);
+    const counts = new Array(bins).fill(0) as number[];
     let maxCount = 0;
 
     for (const v of terminals) {
@@ -155,7 +121,6 @@
       distCtx.fillRect(i * barW + 0.5, plotH - h, barW - 1, h);
     }
 
-    // strike line
     const strikeX = ((p.K - lo) / (hi - lo)) * W;
     distCtx.strokeStyle = '#555';
     distCtx.setLineDash([4, 4]);
@@ -182,7 +147,7 @@
     els.pathCount.textContent = paths.length.toLocaleString();
   }
 
-  function addBatch(n) {
+  function addBatch(n: number) {
     const p = getParams();
     for (let i = 0; i < n; i++) {
       const path = simulatePath(p.S0, p.r, p.sigma, p.T, p.steps);
@@ -213,8 +178,8 @@
     terminals = [];
     els.run.textContent = 'simulate';
     els.run.classList.remove('active');
-    els.mcPrice.textContent = '—';
-    els.bsPrice.textContent = '—';
+    els.mcPrice.textContent = '\u2014';
+    els.bsPrice.textContent = '\u2014';
     els.pathCount.textContent = '0';
     pathsCtx.fillStyle = '#111';
     pathsCtx.fillRect(0, 0, W, H);
@@ -235,16 +200,14 @@
     }
   });
 
-  document.getElementById('price-reset').addEventListener('click', reset);
+  document.getElementById('price-reset')!.addEventListener('click', reset);
 
-  // show BS price immediately
   const p = getParams();
   els.bsPrice.textContent = '$' + blackScholes(p.S0, p.K, p.T, p.r, p.sigma).toFixed(2);
 
-  // load pre-computed data on init
   fetch('/data/option_pricing.json')
     .then(r => r.json())
-    .then(data => {
+    .then((data: { sample_paths?: number[][]; terminal_values?: number[]; num_paths?: number }) => {
       if (data.sample_paths && data.terminal_values) {
         paths = data.sample_paths;
         terminals = data.terminal_values;
@@ -253,9 +216,11 @@
         updatePrices();
         if (els.indicator) {
           els.indicator.className = 'data-indicator precomputed';
-          els.indicator.innerHTML = '<span class="dot"></span>pre-computed · ' + data.num_paths.toLocaleString() + ' paths';
+          els.indicator.innerHTML = '<span class="dot"></span>pre-computed \u00b7 ' + (data.num_paths ?? 0).toLocaleString() + ' paths';
         }
       }
     })
     .catch(() => {});
-})();
+}
+
+main();
