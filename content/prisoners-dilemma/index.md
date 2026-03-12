@@ -1,13 +1,16 @@
 ---
 title: "prisoner's dilemma"
 subtitle: "cooperate or defect?"
-js: "prisoners-dilemma.js"
+js: "prisoners-dilemma.ts"
 ---
 
 <div class="explanation">
   <p>Two prisoners can <strong>cooperate</strong> (stay silent) or <strong>defect</strong> (betray). Mutual cooperation pays 3 each. Mutual defection pays 1 each. Betraying a cooperator pays 5, while the cooperator gets 0.</p>
   <p class="formula">CC → 3,3 &emsp; CD → 0,5 &emsp; DC → 5,0 &emsp; DD → 1,1</p>
   <p>In a single game, defection dominates. But iterated over hundreds of rounds with noise, cooperation can emerge and thrive. Select strategies below and run a round-robin tournament.</p>
+  <p class="formula">references</p>
+  <p>Axelrod. "The Evolution of Cooperation." <em>Basic Books</em>, 1984.</p>
+  <p>Press & Dyson. "Iterated Prisoner's Dilemma contains strategies that dominate any evolutionary opponent." <em>PNAS</em>, 2012.</p>
 </div>
 
 <div class="data-indicator live"><span class="dot"></span> interactive</div>
