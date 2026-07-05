@@ -1,6 +1,7 @@
 baseURL = "https://projectmontecarlo.com/"
 languageCode = "en-us"
 title = "Project Monte Carlo"
+disableKinds = ["taxonomy", "term"]
 
 [params]
   description = "Interactive Monte Carlo simulations and stochastic experiments"
