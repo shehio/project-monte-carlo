@@ -1,28 +1,13 @@
 import {
   Card, createDeck, shuffleCards, renderCard,
-  evaluatePokerHand, comparePokerHands, HAND_NAMES,
+  bestFiveOf, comparePokerHands, HAND_NAMES,
   pokerRankValue, HandRank
 } from './lib/cards';
 
-// ── best 5 of 7 ──
-
-function bestFiveOfSeven(cards: Card[]): { rank: HandRank; kickers: number[] } {
-  let best: { rank: HandRank; kickers: number[] } | null = null;
-  for (let i = 0; i < cards.length; i++) {
-    for (let j = i + 1; j < cards.length; j++) {
-      const five = cards.filter((_, k) => k !== i && k !== j);
-      if (five.length !== 5) continue;
-      const result = evaluatePokerHand(five);
-      if (!best || comparePokerHands(result, best) > 0) best = result;
-    }
-  }
-  return best!;
-}
+// ── best 5 of up to 7 ──
 
 function bestHand(holeCards: Card[], community: Card[]): { rank: HandRank; kickers: number[] } {
-  const all = [...holeCards, ...community];
-  if (all.length <= 5) return evaluatePokerHand(all);
-  return bestFiveOfSeven(all);
+  return bestFiveOf([...holeCards, ...community]);
 }
 
 // ── types ──
