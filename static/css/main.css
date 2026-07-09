@@ -1271,5 +1271,25 @@ label {
   .sol-pile { width: 54px; min-height: 76px; }
   .sol-empty-pile { width: 54px; height: 76px; font-size: 1rem; }
 }
+
+/* ── footer ── */
+
+.site-footer {
+  text-align: center;
+  padding: 2rem;
+  margin-top: 3rem;
+  border-top: 1px solid var(--border);
+  color: var(--dim);
+  font-size: 0.7rem;
+  letter-spacing: 1px;
+}
+
+.site-footer a {
+  color: var(--dim);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.site-footer a:hover { color: var(--accent); }
 /* category title case */
 /* grid gap on tablet */
