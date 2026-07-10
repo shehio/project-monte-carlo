@@ -1,4 +1,4 @@
-import { Card, createDeck, createShoe, shuffleCards, cardValue, handTotal, isSoft, isBlackjack, canSplit, hiLoValue, pokerRankValue, evaluatePokerHand, comparePokerHands, HAND_NAMES } from '@lib/cards';
+import { Card, createDeck, createShoe, shuffleCards, cardValue, handTotal, isSoft, isBlackjack, canSplit, hiLoValue, pokerRankValue, evaluatePokerHand, comparePokerHands, bestFiveOf, HAND_NAMES } from '@lib/cards';
 
 describe('createDeck', () => {
   it('creates 52 cards', () => {
@@ -258,6 +258,92 @@ describe('evaluatePokerHand', () => {
       { rank: 'K', suit: '\u2660' },
     ];
     expect(evaluatePokerHand(hand).rank).toBe(7);
+  });
+
+  it('detects a straight with its high card as kicker', () => {
+    const hand: Card[] = [
+      { rank: '10', suit: '\u2660' },
+      { rank: '9', suit: '\u2665' },
+      { rank: '8', suit: '\u2666' },
+      { rank: '7', suit: '\u2663' },
+      { rank: '6', suit: '\u2660' },
+    ];
+    const result = evaluatePokerHand(hand);
+    expect(result.rank).toBe(4);
+    expect(result.kickers).toEqual([10]);
+  });
+
+  it('scores the wheel (A-2-3-4-5) as a 5-high straight', () => {
+    const wheel: Card[] = [
+      { rank: 'A', suit: '\u2660' },
+      { rank: '2', suit: '\u2665' },
+      { rank: '3', suit: '\u2666' },
+      { rank: '4', suit: '\u2663' },
+      { rank: '5', suit: '\u2660' },
+    ];
+    const result = evaluatePokerHand(wheel);
+    expect(result.rank).toBe(4);
+    expect(result.kickers).toEqual([5]);
+  });
+
+  it('wheel loses to a six-high straight', () => {
+    const wheel = evaluatePokerHand([
+      { rank: 'A', suit: '\u2660' }, { rank: '2', suit: '\u2665' },
+      { rank: '3', suit: '\u2666' }, { rank: '4', suit: '\u2663' }, { rank: '5', suit: '\u2660' },
+    ]);
+    const sixHigh = evaluatePokerHand([
+      { rank: '6', suit: '\u2660' }, { rank: '2', suit: '\u2665' },
+      { rank: '3', suit: '\u2666' }, { rank: '4', suit: '\u2663' }, { rank: '5', suit: '\u2665' },
+    ]);
+    expect(comparePokerHands(wheel, sixHigh)).toBeLessThan(0);
+  });
+
+  it('wheel straight flush is not a royal flush', () => {
+    const steelWheel = evaluatePokerHand([
+      { rank: 'A', suit: '\u2660' }, { rank: '2', suit: '\u2660' },
+      { rank: '3', suit: '\u2660' }, { rank: '4', suit: '\u2660' }, { rank: '5', suit: '\u2660' },
+    ]);
+    expect(steelWheel.rank).toBe(8);
+    const royal = evaluatePokerHand([
+      { rank: 'A', suit: '\u2665' }, { rank: 'K', suit: '\u2665' },
+      { rank: 'Q', suit: '\u2665' }, { rank: 'J', suit: '\u2665' }, { rank: '10', suit: '\u2665' },
+    ]);
+    expect(royal.rank).toBe(9);
+    expect(comparePokerHands(steelWheel, royal)).toBeLessThan(0);
+  });
+});
+
+describe('bestFiveOf', () => {
+  it('evaluates 6 cards (the turn) without crashing', () => {
+    const cards: Card[] = [
+      { rank: 'A', suit: '\u2660' }, { rank: 'A', suit: '\u2665' },
+      { rank: 'K', suit: '\u2666' }, { rank: '7', suit: '\u2663' },
+      { rank: '3', suit: '\u2660' }, { rank: '9', suit: '\u2665' },
+    ];
+    const result = bestFiveOf(cards);
+    expect(result).toBeTruthy();
+    expect(result.rank).toBe(1); // pair of aces
+  });
+
+  it('finds the flush hidden in 7 cards', () => {
+    const cards: Card[] = [
+      { rank: 'A', suit: '\u2660' }, { rank: '10', suit: '\u2660' },
+      { rank: '7', suit: '\u2660' }, { rank: '4', suit: '\u2660' },
+      { rank: '2', suit: '\u2660' }, { rank: 'K', suit: '\u2665' },
+      { rank: 'K', suit: '\u2666' },
+    ];
+    expect(bestFiveOf(cards).rank).toBe(5); // flush beats the pair of kings
+  });
+
+  it('picks the best 5 of 6 when an extra card would break the hand', () => {
+    const cards: Card[] = [
+      { rank: '10', suit: '\u2660' }, { rank: '9', suit: '\u2665' },
+      { rank: '8', suit: '\u2666' }, { rank: '7', suit: '\u2663' },
+      { rank: '6', suit: '\u2660' }, { rank: '2', suit: '\u2665' },
+    ];
+    const result = bestFiveOf(cards);
+    expect(result.rank).toBe(4); // straight 6-10
+    expect(result.kickers).toEqual([10]);
   });
 });
 

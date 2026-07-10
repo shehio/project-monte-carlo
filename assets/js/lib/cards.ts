@@ -131,17 +131,20 @@ export function evaluatePokerHand(cards: Card[]): { rank: HandRank; kickers: num
 
   // Check straight
   let isStraight = false;
+  let straightHigh = 0;
   const unique = [...new Set(vals)].sort((a, b) => b - a);
   if (unique.length >= 5) {
     for (let i = 0; i <= unique.length - 5; i++) {
       if (unique[i] - unique[i + 4] === 4) {
         isStraight = true;
+        straightHigh = unique[i];
         break;
       }
     }
-    // Ace-low straight (A-2-3-4-5)
+    // Ace-low straight (A-2-3-4-5) — the ace plays low, so this is a 5-high straight
     if (!isStraight && unique.includes(14) && unique.includes(2) && unique.includes(3) && unique.includes(4) && unique.includes(5)) {
       isStraight = true;
+      straightHigh = 5;
     }
   }
 
@@ -153,13 +156,13 @@ export function evaluatePokerHand(cards: Card[]): { rank: HandRank; kickers: num
     .sort((a, b) => b.count - a.count || b.val - a.val);
 
   if (isFlush && isStraight) {
-    if (vals.includes(14) && vals.includes(13)) return { rank: 9, kickers: vals };
-    return { rank: 8, kickers: vals };
+    if (straightHigh === 14) return { rank: 9, kickers: [straightHigh] };
+    return { rank: 8, kickers: [straightHigh] };
   }
   if (groups[0].count === 4) return { rank: 7, kickers: [groups[0].val, groups[1].val] };
   if (groups[0].count === 3 && groups[1].count >= 2) return { rank: 6, kickers: [groups[0].val, groups[1].val] };
   if (isFlush) return { rank: 5, kickers: vals };
-  if (isStraight) return { rank: 4, kickers: vals };
+  if (isStraight) return { rank: 4, kickers: [straightHigh] };
   if (groups[0].count === 3) return { rank: 3, kickers: [groups[0].val, ...groups.slice(1).map(g => g.val)] };
   if (groups[0].count === 2 && groups[1].count === 2) return { rank: 2, kickers: [Math.max(groups[0].val, groups[1].val), Math.min(groups[0].val, groups[1].val), groups[2].val] };
   if (groups[0].count === 2) return { rank: 1, kickers: [groups[0].val, ...groups.slice(1).map(g => g.val)] };
@@ -172,4 +175,25 @@ export function comparePokerHands(a: { rank: HandRank; kickers: number[] }, b: {
     if (a.kickers[i] !== b.kickers[i]) return a.kickers[i] - b.kickers[i];
   }
   return 0;
+}
+
+// Best 5-card hand from 5, 6, or 7 cards (flop, turn, river)
+export function bestFiveOf(cards: Card[]): { rank: HandRank; kickers: number[] } {
+  if (cards.length <= 5) return evaluatePokerHand(cards);
+  let best: { rank: HandRank; kickers: number[] } | null = null;
+  const pick: Card[] = [];
+  const choose = (start: number): void => {
+    if (pick.length === 5) {
+      const result = evaluatePokerHand(pick);
+      if (!best || comparePokerHands(result, best) > 0) best = result;
+      return;
+    }
+    for (let i = start; i <= cards.length - (5 - pick.length); i++) {
+      pick.push(cards[i]);
+      choose(i + 1);
+      pick.pop();
+    }
+  };
+  choose(0);
+  return best!;
 }
