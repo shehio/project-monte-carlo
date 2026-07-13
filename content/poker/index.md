@@ -5,10 +5,10 @@ js: "poker.ts"
 ---
 
 <div class="explanation">
-  <p>Texas Hold'em is a game of incomplete information — you see 2 of 52 cards and must decide whether to bet, call, or fold. Exact win probabilities are computationally expensive: with 5 community cards and multiple opponents, the combinatorial space explodes.</p>
+  <p>Texas Hold'em is a game of incomplete information: you see 2 of 52 cards and must decide whether to bet, call, or fold. Exact win probabilities are computationally expensive: with 5 community cards and multiple opponents, the combinatorial space explodes.</p>
   <p class="formula">C(50,5) × C(45,2)^N opponents ≈ billions of board combinations</p>
-  <p><strong>Monte Carlo sampling</strong> cuts through this by dealing thousands of random boards and counting wins. Given your two hole cards, the simulator deals random community cards and opponent hands, evaluates all hands, and estimates your equity — the fraction of the time you win or tie.</p>
-  <p>This technique underpins the solvers used in modern poker. Programs like Pluribus (Brown & Sandholm, 2019) and student-of-games architectures (Schmid et al., 2023) use Monte Carlo counterfactual regret minimization (MCCFR) to approximate Nash equilibria in imperfect-information games. Even simpler equity calculators — like the simulator below — rely on random rollouts to estimate hand strength in real time.</p>
+  <p><strong>Monte Carlo sampling</strong> cuts through this by dealing thousands of random boards and counting wins. Given your two hole cards, the simulator deals random community cards and opponent hands, evaluates all hands, and estimates your equity, the fraction of the time you win or tie.</p>
+  <p>This technique underpins the solvers used in modern poker. Programs like Pluribus (Brown & Sandholm, 2019) and student-of-games architectures (Schmid et al., 2023) use Monte Carlo counterfactual regret minimization (MCCFR) to approximate Nash equilibria in imperfect-information games. Even simpler equity calculators, like the simulator below, rely on random rollouts to estimate hand strength in real time.</p>
   <p>Recent work by Zha et al. (2024) on RL environments for card games and Lanctot et al. (2019) on the OpenSpiel framework demonstrate that MC sampling remains foundational: it provides the ground-truth equity estimates that more sophisticated algorithms refine.</p>
 </div>
 
@@ -84,7 +84,7 @@ js: "poker.ts"
 <h3 class="section-heading">monte carlo hand equity</h3>
 
 <div class="explanation">
-  <p>Pick any two hole cards and choose how many opponents to simulate against. The simulator deals <code>10,000</code> random boards, evaluates all hands, and reports your estimated win percentage. The convergence chart shows how the estimate stabilizes as more samples are drawn — a visual demonstration of the law of large numbers.</p>
+  <p>Pick any two hole cards and choose how many opponents to simulate against. The simulator deals <code>10,000</code> random boards, evaluates all hands, and reports your estimated win percentage. The convergence chart shows how the estimate stabilizes as more samples are drawn, a visual demonstration of the law of large numbers.</p>
 </div>
 
 <div class="sim-controls">
@@ -150,7 +150,7 @@ js: "poker.ts"
 <h3 class="section-heading">starting hand categories</h3>
 
 <div class="explanation">
-  <p>The bar chart below shows estimated win percentages for common starting hand categories vs 3 opponents, computed via Monte Carlo. Suited hands gain ~3–4% equity from flush potential. Pocket aces dominate but still lose ~35% of the time against three opponents — a reminder that even the best hand needs the board to cooperate.</p>
+  <p>The bar chart below shows estimated win percentages for common starting hand categories vs 3 opponents, computed via Monte Carlo. Suited hands gain ~3–4% equity from flush potential. Pocket aces dominate but still lose ~35% of the time against three opponents, a reminder that even the best hand needs the board to cooperate.</p>
 </div>
 
 <div class="canvas-wrap">

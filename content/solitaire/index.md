@@ -5,7 +5,7 @@ js: "solitaire.ts"
 ---
 
 <div class="explanation">
-  <p>Klondike is the most widely played solitaire variant — the one most people simply call "solitaire." Despite its familiarity, the exact probability of winning with optimal play remains an open question in combinatorial game theory.</p>
+  <p>Klondike is the most widely played solitaire variant, the one most people simply call "solitaire." Despite its familiarity, the exact probability of winning with optimal play remains an open question in combinatorial game theory.</p>
   <p class="formula">P(win | perfect play) ≈ 79% &emsp; P(win | greedy heuristic) ≈ 10–15%</p>
   <p>The gap between perfect play and heuristic play is enormous. Monte Carlo simulation lets us estimate win rates for different automated strategies by sampling thousands of random deals and playing them out with simple decision rules. Below, play a game interactively, then run simulations to compare strategy win rates.</p>
 </div>
@@ -73,11 +73,11 @@ js: "solitaire.ts"
   </div>
   <div class="stat">
     <span class="label">foundation-first</span>
-    <span id="sol-sim-ff" class="value">—</span>
+    <span id="sol-sim-ff" class="value">–</span>
   </div>
   <div class="stat">
     <span class="label">balanced</span>
-    <span id="sol-sim-bal" class="value">—</span>
+    <span id="sol-sim-bal" class="value">–</span>
   </div>
 </div>
 
@@ -90,8 +90,8 @@ js: "solitaire.ts"
 <h3 class="section-heading">about the math</h3>
 
 <div class="explanation">
-  <p>The solvability of Klondike solitaire has been studied extensively. With 52 cards dealt into a specific layout, there are roughly 8 × 10<sup>67</sup> possible deals. Not all are winnable — even with perfect play, some deals are provably unsolvable due to card ordering.</p>
+  <p>The solvability of Klondike solitaire has been studied extensively. With 52 cards dealt into a specific layout, there are roughly 8 × 10<sup>67</sup> possible deals. Not all are winnable; even with perfect play, some deals are provably unsolvable due to card ordering.</p>
   <p><strong>Bjarnason et al. (2007)</strong> used Monte Carlo sampling to estimate that approximately 79% of Klondike deals are solvable with perfect information (all cards visible). With the standard hidden-card rules, the effective win rate drops due to incomplete information.</p>
   <p><strong>Yan et al. (2005)</strong> studied automated solvers and found that simple greedy strategies win roughly 10–15% of games, while more sophisticated search-based approaches can reach 30–40%. The gap between these rates illustrates how much hidden information and lookahead matter.</p>
-  <p>The simulation above estimates win rates for two greedy heuristics — neither attempts lookahead or backtracking, making them fast enough to simulate thousands of games in seconds while still revealing meaningful differences in strategy quality.</p>
+  <p>The simulation above estimates win rates for two greedy heuristics: neither attempts lookahead or backtracking, making them fast enough to simulate thousands of games in seconds while still revealing meaningful differences in strategy quality.</p>
 </div>

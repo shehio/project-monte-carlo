@@ -5,7 +5,7 @@ js: "convergence.ts"
 ---
 
 <div class="explanation">
-  <p>The Central Limit Theorem: the mean of n independent samples approaches a normal distribution as n grows — regardless of the source distribution's shape.</p>
+  <p>The Central Limit Theorem: the mean of n independent samples approaches a normal distribution as n grows, regardless of the source distribution's shape.</p>
   <p class="formula">σ_means = σ_source / √n</p>
   <p>This is why confidence intervals and hypothesis tests work. The spread of sample means shrinks predictably as <code>1/√n</code>, making estimation more precise with larger samples.</p>
   <p class="formula">references</p>
@@ -29,15 +29,15 @@ js: "convergence.ts"
 <div class="stats">
   <div class="stat">
     <span class="label">mean of means</span>
-    <span id="clt-mean" class="value">—</span>
+    <span id="clt-mean" class="value">–</span>
   </div>
   <div class="stat">
     <span class="label">std of means</span>
-    <span id="clt-std" class="value">—</span>
+    <span id="clt-std" class="value">–</span>
   </div>
   <div class="stat">
     <span class="label">theoretical std</span>
-    <span id="clt-theory-std" class="value">—</span>
+    <span id="clt-theory-std" class="value">–</span>
   </div>
   <div class="stat">
     <span class="label">samples</span>

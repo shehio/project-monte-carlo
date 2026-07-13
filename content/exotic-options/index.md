@@ -5,9 +5,9 @@ js: "exotic-options.ts"
 ---
 
 <div class="explanation">
-  <p>Exotic options have path-dependent payoffs — their value depends on the <em>entire</em> price history, not just the final price. No closed-form solutions exist, making Monte Carlo the primary pricing method.</p>
+  <p>Exotic options have path-dependent payoffs: their value depends on the <em>entire</em> price history, not just the final price. No closed-form solutions exist, making Monte Carlo the primary pricing method.</p>
   <p class="formula">Asian: payoff = max(avg(S) − K, 0) · Barrier: knocked out if S hits B · Lookback: payoff = S_T − min(S)</p>
-  <p>Asian options smooth out manipulation risk. Barrier options are cheaper than vanilla. Lookback options give perfect hindsight — and cost accordingly.</p>
+  <p>Asian options smooth out manipulation risk. Barrier options are cheaper than vanilla. Lookback options give perfect hindsight, and cost accordingly.</p>
   <p class="formula">references</p>
   <p>Broadie & Glasserman. "Estimating security price derivatives using simulation." <em>Management Science</em>, 1996.</p>
   <p>Bouchard & Warin. "Monte Carlo valuation of American options." <em>Mathematical Finance</em>, 2012.</p>
@@ -29,19 +29,19 @@ js: "exotic-options.ts"
 <div class="stats">
   <div class="stat">
     <span class="label">vanilla (BS)</span>
-    <span id="exotic-vanilla" class="value">—</span>
+    <span id="exotic-vanilla" class="value">–</span>
   </div>
   <div class="stat">
     <span class="label">asian</span>
-    <span id="exotic-asian" class="value">—</span>
+    <span id="exotic-asian" class="value">–</span>
   </div>
   <div class="stat">
     <span class="label">barrier (U&O)</span>
-    <span id="exotic-barrier" class="value">—</span>
+    <span id="exotic-barrier" class="value">–</span>
   </div>
   <div class="stat">
     <span class="label">lookback</span>
-    <span id="exotic-lookback" class="value">—</span>
+    <span id="exotic-lookback" class="value">–</span>
   </div>
   <div class="stat">
     <span class="label">paths</span>

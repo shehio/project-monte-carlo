@@ -7,7 +7,7 @@ js: "blackjack.ts"
 <div class="explanation">
   <p>The house edge in blackjack is ~0.5% with basic strategy. Card counting tilts the odds by tracking the ratio of high to low cards remaining in the shoe.</p>
   <p class="formula">Hi-Lo: +1 for 2–6 · 0 for 7–9 · −1 for 10,J,Q,K,A</p>
-  <p>A positive running count means more high cards remain, favoring the player. True count = running count / decks remaining — bet more when it's high.</p>
+  <p>A positive running count means more high cards remain, favoring the player. True count = running count / decks remaining; bet more when it's high.</p>
   <p class="formula">references</p>
   <p>Thorp. "Beat the Dealer." <em>Vintage</em>, 1966.</p>
   <p>Griffin. "The Theory of Blackjack." <em>Huntington Press</em>, 1999.</p>
@@ -33,7 +33,7 @@ js: "blackjack.ts"
   </div>
   <div class="stat">
     <span class="label">bet</span>
-    <span id="current-bet" class="value">—</span>
+    <span id="current-bet" class="value">–</span>
   </div>
   <div class="stat">
     <span class="label">hi-lo count</span>

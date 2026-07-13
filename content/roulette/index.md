@@ -5,7 +5,7 @@ js: "roulette.ts"
 ---
 
 <div class="explanation">
-  <p>The <strong>gambler's fallacy</strong> is the belief that past random outcomes affect future ones. After five reds in a row, many players bet black — convinced it's "due." But the wheel has no memory.</p>
+  <p>The <strong>gambler's fallacy</strong> is the belief that past random outcomes affect future ones. After five reds in a row, many players bet black, convinced it's "due." But the wheel has no memory.</p>
   <p class="formula">P(red | any streak) = 18/37 ≈ 48.6%</p>
   <p>Each spin is independent. No pattern of past results changes the odds of the next spin. Spin the wheel below, then run the simulation to watch the fallacy shatter against the data.</p>
   <p class="formula">references</p>
@@ -16,7 +16,7 @@ js: "roulette.ts"
 <div class="data-indicator live"><span class="dot"></span> interactive</div>
 
 <div class="rl-game">
-  <div class="rl-result" id="rl-result">—</div>
+  <div class="rl-result" id="rl-result">-</div>
   <div class="rl-history" id="rl-history"></div>
 </div>
 
@@ -33,21 +33,21 @@ js: "roulette.ts"
   </div>
   <div class="stat">
     <span class="label">red</span>
-    <span id="rl-red-pct" class="value">—</span>
+    <span id="rl-red-pct" class="value">-</span>
   </div>
   <div class="stat">
     <span class="label">black</span>
-    <span id="rl-black-pct" class="value">—</span>
+    <span id="rl-black-pct" class="value">-</span>
   </div>
   <div class="stat">
     <span class="label">streak</span>
-    <span id="rl-streak" class="value">—</span>
+    <span id="rl-streak" class="value">-</span>
   </div>
 </div>
 
 <h3 class="section-heading">the fallacy test</h3>
 
-<p class="explanation" style="margin-bottom:1rem">After a streak of K reds, what's the probability the next spin is red? Run the simulation — every bar lands near 48.6%, regardless of streak length.</p>
+<p class="explanation" style="margin-bottom:1rem">After a streak of K reds, what's the probability the next spin is red? Run the simulation; every bar lands near 48.6%, regardless of streak length.</p>
 
 <div class="canvas-wrap">
   <canvas id="rl-canvas" width="600" height="350"></canvas>

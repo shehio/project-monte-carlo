@@ -5,9 +5,9 @@ js: "pi-estimation.ts"
 ---
 
 <div class="explanation">
-  <p>A quarter circle of radius 1 inscribed in the unit square has area π/4. Drop random points in the square — the fraction landing inside the quarter circle approximates π/4.</p>
+  <p>A quarter circle of radius 1 inscribed in the unit square has area π/4. Drop random points in the square; the fraction landing inside the quarter circle approximates π/4.</p>
   <p class="formula">π ≈ 4 × (points inside) / (total points)</p>
-  <p>The error decreases as <code>1/√n</code> — quadrupling the points halves the error. This is the Monte Carlo convergence rate.</p>
+  <p>The error decreases as <code>1/√n</code>: quadrupling the points halves the error. This is the Monte Carlo convergence rate.</p>
   <p class="formula">references</p>
   <p>Kalos & Whitlock. "Monte Carlo Methods." <em>Wiley</em>, 2008.</p>
   <p>Kroese et al. "Why the Monte Carlo method is so important today." <em>WIREs Computational Statistics</em>, 2014.</p>
@@ -22,7 +22,7 @@ js: "pi-estimation.ts"
 <div class="stats">
   <div class="stat">
     <span class="label">π estimate</span>
-    <span id="pi-value" class="value">—</span>
+    <span id="pi-value" class="value">–</span>
   </div>
   <div class="stat">
     <span class="label">points</span>
@@ -30,7 +30,7 @@ js: "pi-estimation.ts"
   </div>
   <div class="stat">
     <span class="label">error</span>
-    <span id="pi-error" class="value">—</span>
+    <span id="pi-error" class="value">–</span>
   </div>
 </div>
 

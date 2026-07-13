@@ -7,7 +7,7 @@ js: "craps.ts"
 <div class="explanation">
   <p>Craps is decided by a pair of dice. The come-out roll determines the game's trajectory: <strong>7 or 11</strong> wins immediately (a "natural"), <strong>2, 3, or 12</strong> loses ("craps"), and anything else establishes a <strong>point</strong>. The shooter then rolls until the point hits (win) or a 7 appears (lose).</p>
   <p class="formula">P(pass line win) = 244/495 ≈ 49.29% · house edge ≈ 1.41%</p>
-  <p>The field bet pays on 2, 3, 4, 9, 10, 11, 12 (with 2 and 12 paying double), giving a house edge of ~5.56%. The don't pass bet is nearly the mirror of the pass line — the house edge drops to ~1.36%, making it one of the best bets in the casino.</p>
+  <p>The field bet pays on 2, 3, 4, 9, 10, 11, 12 (with 2 and 12 paying double), giving a house edge of ~5.56%. The don't pass bet is nearly the mirror of the pass line; the house edge drops to ~1.36%, making it one of the best bets in the casino.</p>
   <p>Run the Monte Carlo simulation below to watch empirical house edges converge to their theoretical values across thousands of resolved bets.</p>
 </div>
 
@@ -23,7 +23,7 @@ js: "craps.ts"
       <div class="die-face"></div>
     </div>
   </div>
-  <div class="craps-roll-total" id="roll-total">&mdash;</div>
+  <div class="craps-roll-total" id="roll-total">&ndash;</div>
   <div class="craps-phase" id="phase-display">place your bet and roll</div>
   <div class="craps-point" id="point-display"></div>
 </div>
@@ -49,7 +49,7 @@ js: "craps.ts"
   </div>
   <div class="stat">
     <span class="label">point</span>
-    <span id="craps-point-val" class="value">&mdash;</span>
+    <span id="craps-point-val" class="value">&ndash;</span>
   </div>
   <div class="stat">
     <span class="label">wins</span>
@@ -84,15 +84,15 @@ js: "craps.ts"
   </div>
   <div class="stat">
     <span class="label">pass edge</span>
-    <span id="craps-sim-pass" class="value">&mdash;</span>
+    <span id="craps-sim-pass" class="value">&ndash;</span>
   </div>
   <div class="stat">
     <span class="label">don't pass edge</span>
-    <span id="craps-sim-dp" class="value">&mdash;</span>
+    <span id="craps-sim-dp" class="value">&ndash;</span>
   </div>
   <div class="stat">
     <span class="label">field edge</span>
-    <span id="craps-sim-field" class="value">&mdash;</span>
+    <span id="craps-sim-field" class="value">&ndash;</span>
   </div>
 </div>
 

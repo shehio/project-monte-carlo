@@ -5,7 +5,7 @@ js: "secretary-problem.ts"
 ---
 
 <div class="explanation">
-  <p>You're hiring. <em>N</em> candidates arrive in random order. After each interview, you must hire or pass — no callbacks. The optimal strategy: <strong>reject the first 37%</strong>, then hire the next candidate who's better than everyone you've seen.</p>
+  <p>You're hiring. <em>N</em> candidates arrive in random order. After each interview, you must hire or pass: no callbacks. The optimal strategy: <strong>reject the first 37%</strong>, then hire the next candidate who's better than everyone you've seen.</p>
   <p class="formula">optimal threshold = N/e ≈ 37% &emsp; P(best) ≈ 1/e ≈ 36.8%</p>
   <p>This is the <strong>optimal stopping problem</strong>. The 1/e rule maximizes your chance of picking the single best candidate. Play the game below, then run the simulation to see the peak at 37%.</p>
   <p class="formula">references</p>
@@ -16,7 +16,7 @@ js: "secretary-problem.ts"
 <div class="data-indicator live"><span class="dot"></span> interactive</div>
 
 <div class="sp-candidate" id="sp-candidate">
-  <div class="sp-number" id="sp-number">—</div>
+  <div class="sp-number" id="sp-number">–</div>
   <div class="sp-score" id="sp-score"></div>
   <div class="sp-best-so-far" id="sp-best-label"></div>
 </div>
@@ -41,7 +41,7 @@ js: "secretary-problem.ts"
   </div>
   <div class="stat">
     <span class="label">success rate</span>
-    <span id="sp-rate" class="value">—</span>
+    <span id="sp-rate" class="value">–</span>
   </div>
 </div>
 
@@ -60,11 +60,11 @@ js: "secretary-problem.ts"
   </div>
   <div class="stat">
     <span class="label">peak threshold</span>
-    <span id="sp-peak" class="value">—</span>
+    <span id="sp-peak" class="value">–</span>
   </div>
   <div class="stat">
     <span class="label">peak success</span>
-    <span id="sp-peak-rate" class="value">—</span>
+    <span id="sp-peak-rate" class="value">–</span>
   </div>
 </div>
 

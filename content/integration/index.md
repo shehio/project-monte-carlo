@@ -7,7 +7,7 @@ js: "integration.ts"
 <div class="explanation">
   <p>Estimate <code>∫f(x)dx</code> by throwing random points into a bounding box. The fraction landing under the curve times the box area approximates the integral.</p>
   <p class="formula">∫f(x)dx ≈ (points under curve / total points) × box area</p>
-  <p>MC integration scales to arbitrary dimensions where deterministic methods fail — this is why it powers physics simulations and financial models.</p>
+  <p>MC integration scales to arbitrary dimensions where deterministic methods fail; this is why it powers physics simulations and financial models.</p>
   <p class="formula">references</p>
   <p>Caflisch. "Monte Carlo and quasi-Monte Carlo methods." <em>Acta Numerica</em>, 1998.</p>
   <p>Dick et al. "High-dimensional integration: the quasi-Monte Carlo way." <em>Acta Numerica</em>, 2013.</p>
@@ -22,11 +22,11 @@ js: "integration.ts"
 <div class="stats">
   <div class="stat">
     <span class="label">estimate</span>
-    <span id="int-estimate" class="value">—</span>
+    <span id="int-estimate" class="value">–</span>
   </div>
   <div class="stat">
     <span class="label">exact</span>
-    <span id="int-exact" class="value">—</span>
+    <span id="int-exact" class="value">–</span>
   </div>
   <div class="stat">
     <span class="label">points</span>
@@ -34,7 +34,7 @@ js: "integration.ts"
   </div>
   <div class="stat">
     <span class="label">error</span>
-    <span id="int-error" class="value">—</span>
+    <span id="int-error" class="value">–</span>
   </div>
 </div>
 
