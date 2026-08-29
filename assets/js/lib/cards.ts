@@ -127,7 +127,7 @@ export function evaluatePokerHand(cards: Card[]): { rank: HandRank; kickers: num
   const vals = cards.map(c => pokerRankValue(c.rank)).sort((a, b) => b - a);
   const suits = cards.map(c => c.suit);
 
-  const isFlush = suits.every(s => s === suits[0]);
+  const isFlush = cards.length >= 5 && suits.every(s => s === suits[0]);
 
   // Check straight
   let isStraight = false;

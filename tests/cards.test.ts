@@ -205,6 +205,14 @@ describe('evaluatePokerHand', () => {
     expect(evaluatePokerHand(hand).rank).toBe(1);
   });
 
+  it('does not call fewer than five suited cards a flush', () => {
+    const hand: Card[] = [
+      { rank: 'A', suit: '\u2660' },
+      { rank: 'K', suit: '\u2660' },
+    ];
+    expect(evaluatePokerHand(hand).rank).toBe(0);
+  });
+
   it('detects two pair', () => {
     const hand: Card[] = [
       { rank: 'A', suit: '\u2660' },

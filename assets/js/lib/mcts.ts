@@ -51,6 +51,14 @@ function bestChild(node: MCTSNode, c: number): MCTSNode | null {
   return best;
 }
 
+function mostVisitedChild(node: MCTSNode): MCTSNode | null {
+  let best: MCTSNode | null = null;
+  for (const child of node.children) {
+    if (best === null || child.visits > best.visits) best = child;
+  }
+  return best;
+}
+
 function expand(node: MCTSNode): MCTSNode {
   const idx = Math.floor(Math.random() * node.untriedMoves.length);
   const move = node.untriedMoves.splice(idx, 1)[0];
@@ -168,7 +176,7 @@ export function search(state: MCTSState, opts?: MCTSOptions): MCTSResult {
     .sort((a, b) => b.visits - a.visits)
     .slice(0, 8);
 
-  const bestC = bestChild(root, 0);
+  const bestC = mostVisitedChild(root);
 
   // Build tree snapshot
   const tree: MCTSTreeNode = { move: null, visits: root.visits, winRate: 0, children: [] };

@@ -141,6 +141,15 @@ describe('MCTS search', () => {
     expect(result.bestMove).toBe(2);
   });
 
+  it('chooses the most-visited root child (robust child)', () => {
+    // The chess page documents "the most-visited branch becomes the chosen
+    // move"; topMoves is sorted by visit count, so the pick must be its head.
+    for (let i = 0; i < 20; i++) {
+      const result = search(new TicTacToe(), { iterations: 200 });
+      expect(result.bestMove).toBe(result.stats.topMoves[0].move);
+    }
+  });
+
   it('returns tree structure', () => {
     const game = new SimpleGame();
     const result = search(game, { iterations: 200 });
