@@ -60,7 +60,7 @@ distributions = {
     "exponential": lambda: -math.log(1 - random.random()),
     "uniform": lambda: random.random(),
     "bimodal": lambda: gauss() - 2 if random.random() < 0.5 else gauss() + 2,
-    "chi-squared": lambda: gamma_random(1) + gamma_random(1),
+    "chi-squared": lambda: gauss() ** 2 + gauss() ** 2,
     "log-normal": lambda: math.exp(gauss()),
     "beta": lambda: beta_random(2, 5),
     "poisson": lambda: poisson_random(4),

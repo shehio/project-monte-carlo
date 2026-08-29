@@ -1,4 +1,4 @@
-import { gaussRandom, gammaRandom, betaRandom, poissonRandom } from './lib/math';
+import { gaussRandom, betaRandom, poissonRandom } from './lib/math';
 
 function main() {
   const srcCanvas = document.getElementById('source-canvas') as HTMLCanvasElement;
@@ -34,7 +34,7 @@ function main() {
     exponential:   { fn: () => -Math.log(1 - Math.random()), range: [0, 6], mu: 1, sigma: 1 },
     uniform:       { fn: () => Math.random(), range: [0, 1], mu: 0.5, sigma: 1 / Math.sqrt(12) },
     bimodal:       { fn: () => Math.random() < 0.5 ? gaussRandom() - 2 : gaussRandom() + 2, range: [-6, 6], mu: 0, sigma: Math.sqrt(5) },
-    'chi-squared': { fn: () => gammaRandom(1) + gammaRandom(1), range: [0, 12], mu: 2, sigma: 2 },
+    'chi-squared': { fn: () => gaussRandom() ** 2 + gaussRandom() ** 2, range: [0, 12], mu: 2, sigma: 2 },
     'log-normal':  { fn: () => Math.exp(gaussRandom()), range: [0, 8], mu: Math.exp(0.5), sigma: Math.sqrt((Math.exp(1) - 1) * Math.exp(1)) },
     beta:          { fn: () => betaRandom(2, 5), range: [0, 1], mu: 2 / 7, sigma: Math.sqrt(10 / (49 * 8)) },
     poisson:       { fn: () => poissonRandom(4), range: [0, 14], mu: 4, sigma: 2 },
