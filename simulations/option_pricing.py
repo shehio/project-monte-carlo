@@ -41,6 +41,14 @@ def simulate_gbm(S0: float, r: float, sigma: float, T: float, steps: int) -> lis
     return path
 
 
+def decimate(path: list[float], every: int = 10) -> list[float]:
+    """Thin a path for the JSON payload, always keeping the true terminal."""
+    idx = list(range(0, len(path), every))
+    if idx[-1] != len(path) - 1:
+        idx.append(len(path) - 1)
+    return [path[i] for i in idx]
+
+
 def monte_carlo_price(
     S0: float,
     K: float,
@@ -52,16 +60,17 @@ def monte_carlo_price(
 ) -> dict:
     payoffs = []
     sample_paths = []
+    terminals = []
 
     for i in range(num_paths):
         path = simulate_gbm(S0, r, sigma, T, steps)
         payoffs.append(max(path[-1] - K, 0))
         if i < 100:
-            sample_paths.append(path[::10])
+            terminals.append(path[-1])
+            sample_paths.append(decimate(path))
 
     mc = math.exp(-r * T) * sum(payoffs) / len(payoffs)
     bs = black_scholes_call(S0, K, T, r, sigma)
-    terminals = [p[-1] for p in sample_paths]
 
     return {
         "mc_price": round(mc, 4),

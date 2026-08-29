@@ -207,13 +207,16 @@ function main() {
 
   fetch('/data/option_pricing.json')
     .then(r => r.json())
-    .then((data: { sample_paths?: number[][]; terminal_values?: number[]; num_paths?: number }) => {
-      if (data.sample_paths && data.terminal_values) {
+    .then((data: { sample_paths?: number[][]; terminal_values?: number[]; num_paths?: number; mc_price?: number }) => {
+      if (data.sample_paths && data.terminal_values && data.mc_price !== undefined) {
         paths = data.sample_paths;
         terminals = data.terminal_values;
         drawPaths();
         drawDist();
-        updatePrices();
+        // Report the generator's full num_paths estimate. The plotted terminals are
+        // only a 100-path sample; re-averaging them would misreport the price.
+        els.mcPrice.textContent = '$' + data.mc_price.toFixed(2);
+        els.pathCount.textContent = (data.num_paths ?? 0).toLocaleString();
         if (els.indicator) {
           els.indicator.className = 'data-indicator precomputed';
           els.indicator.innerHTML = '<span class="dot"></span>pre-computed \u00b7 ' + (data.num_paths ?? 0).toLocaleString() + ' paths';
