@@ -36,3 +36,31 @@ jobs:
 
       - name: Build
         run: hugo --minify
+
+  simulations:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Regenerate option pricing data
+        run: python simulations/option_pricing.py
+
+      - name: Check the generator's output
+        run: |
+          python - <<'EOF'
+          import json, math
+
+          d = json.load(open("static/data/option_pricing.json"))
+          # Discounted payoff sd is ~14.7 for these params, so a run's standard
+          # error is 14.7/sqrt(num_paths) — about $0.046 at 100,000 paths.
+          se = 14.7 / math.sqrt(d["num_paths"])
+          assert abs(d["mc_price"] - d["bs_price"]) < 5 * se, d["mc_price"]
+          for path, terminal in zip(d["sample_paths"], d["terminal_values"]):
+              assert path[0] == d["params"]["S0"], path[0]
+              assert path[-1] == terminal, (path[-1], terminal)
+          print(f"mc={d['mc_price']} bs={d['bs_price']} se={se:.4f}")
+          EOF
